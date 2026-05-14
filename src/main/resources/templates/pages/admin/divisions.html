@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin-main}" lang="en">
+<body>
+<section layout:fragment="content">
+	<div class="dashboard-container">
+		<div class="page-header">
+			<div class="page-header-left">
+				<h1 class="page-title">Divisions</h1>
+				<span class="page-subtitle">Manage division list</span>
+			</div>
+		</div>
+		<div style="padding: 1.25rem 1.75rem;">
+			<h2 style="font-size:1rem;color:#003d7a;margin:0 0 0.75rem;">Add division</h2>
+			<form th:action="@{/admin/divisions/add}" th:object="${newDivision}" method="post" class="admin-form-grid">
+				<label>Name
+					<input type="text" th:field="*{name}" required maxlength="255" placeholder="Division name"/>
+				</label>
+				<label>Sort order (optional)
+					<input type="number" th:field="*{sortOrder}" placeholder="0"/>
+				</label>
+				<button type="submit" class="admin-btn">Create</button>
+			</form>
+			<h2 style="font-size:1rem;color:#003d7a;margin:1.5rem 0 0.75rem;">All divisions</h2>
+			<table class="admin-table">
+				<thead>
+				<tr>
+					<th>Name</th>
+					<th>Sort</th>
+					<th>Active</th>
+					<th>Save</th>
+					<th></th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr th:each="d : ${divisions}">
+					<td>
+						<form th:id="|divf-${d.id}|" th:action="@{/admin/divisions/update}" method="post" style="display:none;">
+							<input type="hidden" name="id" th:value="${d.id}"/>
+						</form>
+						<input type="text" name="name" required maxlength="255" th:value="${d.name}" th:form="|divf-${d.id}|"
+						       style="width:100%;max-width:18rem;padding:0.35rem 0.45rem;border:1px solid #c0ceea;border-radius:3px;font:inherit;"/>
+					</td>
+					<td>
+						<input type="number" name="sortOrder" th:value="${d.sortOrder}" th:form="|divf-${d.id}|"
+						       style="width:4.5rem;padding:0.35rem 0.45rem;border:1px solid #c0ceea;border-radius:3px;font:inherit;"/>
+					</td>
+					<td>
+						<label style="display:inline-flex;align-items:center;gap:0.35rem;font-size:0.85rem;">
+							<input type="checkbox" name="active" value="true" th:checked="${d.active}" th:form="|divf-${d.id}|"/>
+							<span th:text="${d.active} ? 'Yes' : 'No'">—</span>
+						</label>
+					</td>
+					<td>
+						<button type="submit" class="admin-btn admin-btn--muted" style="font-size:0.78rem;padding:0.3rem 0.55rem;" th:form="|divf-${d.id}|">Save</button>
+					</td>
+					<td>
+						<form th:if="${d.active}" th:action="@{/admin/divisions/deactivate}" method="post" style="display:inline;">
+							<input type="hidden" name="id" th:value="${d.id}"/>
+							<button type="submit" class="admin-btn admin-btn--danger" style="font-size:0.78rem;padding:0.3rem 0.55rem;">Deactivate</button>
+						</form>
+					</td>
+				</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</section>
+</body>
+</html>

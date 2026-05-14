@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin-main}" lang="en">
+<body>
+<section layout:fragment="content">
+	<div class="dashboard-container">
+		<div class="page-header">
+			<div class="page-header-left">
+				<h1 class="page-title">Document types</h1>
+				<span class="page-subtitle">SOM, reports, meetings, etc.</span>
+			</div>
+		</div>
+		<div style="padding: 1.25rem 1.75rem;">
+			<h2 style="font-size:1rem;color:#003d7a;margin:0 0 0.75rem;">Add document type</h2>
+			<form th:action="@{/admin/document-types/add}" th:object="${newDocumentType}" method="post" class="admin-form-grid">
+				<label>Name
+					<input type="text" th:field="*{name}" required maxlength="255" placeholder="e.g. Policy brief"/>
+				</label>
+				<label>Sort order (optional)
+					<input type="number" th:field="*{sortOrder}" placeholder="0"/>
+				</label>
+				<button type="submit" class="admin-btn">Create</button>
+			</form>
+			<h2 style="font-size:1rem;color:#003d7a;margin:1.5rem 0 0.75rem;">All types</h2>
+			<table class="admin-table">
+				<thead>
+				<tr>
+					<th>Name</th>
+					<th>Sort</th>
+					<th>Active</th>
+					<th></th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr th:each="t : ${documentTypes}">
+					<td th:text="${t.name}">—</td>
+					<td th:text="${t.sortOrder}">0</td>
+					<td th:text="${t.active} ? 'Yes' : 'No'">—</td>
+					<td>
+						<form th:if="${t.active}" th:action="@{/admin/document-types/deactivate}" method="post" style="display:inline;">
+							<input type="hidden" name="id" th:value="${t.id}"/>
+							<button type="submit" class="admin-btn admin-btn--danger" style="font-size:0.78rem;padding:0.3rem 0.55rem;">Deactivate</button>
+						</form>
+					</td>
+				</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</section>
+</body>
+</html>

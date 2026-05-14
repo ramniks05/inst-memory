@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin-main}" lang="en">
+<body>
+<section layout:fragment="content">
+	<div class="dashboard-container">
+		<div class="page-header">
+			<div class="page-header-left">
+				<h1 class="page-title">Add officer</h1>
+				<span class="page-subtitle">Division and designation references</span>
+			</div>
+		</div>
+		<div style="padding: 1.25rem 1.75rem;">
+			<div class="admin-flash admin-flash--err" th:if="${formError}" th:text="${formError}"></div>
+			<form th:action="@{/admin/officers/new}" th:object="${officer}" method="post" class="admin-form-grid" style="max-width:32rem;">
+				<label>Full name
+					<input type="text" th:field="*{fullName}" required maxlength="255"/>
+					<span class="admin-field-error" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></span>
+				</label>
+				<label>Email
+					<input type="email" th:field="*{email}" required maxlength="255"/>
+					<span class="admin-field-error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span>
+				</label>
+				<label>Mobile <span style="font-weight:400;color:#64748b;">(10 digits)</span>
+					<input type="tel" th:field="*{mobileNumber}" required maxlength="10" minlength="10" inputmode="numeric" autocomplete="tel" pattern="[0-9]{10}" title="Enter exactly 10 digits"/>
+					<span class="admin-field-error" th:if="${#fields.hasErrors('mobileNumber')}" th:errors="*{mobileNumber}"></span>
+				</label>
+				<label>Temporary password
+					<input type="password" th:field="*{password}" required minlength="6" maxlength="128" autocomplete="new-password"/>
+					<span class="admin-field-error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></span>
+				</label>
+				<label>Department (optional)
+					<input type="text" th:field="*{department}" maxlength="255" placeholder="Leave blank for default"/>
+				</label>
+				<label>Designation
+					<select th:field="*{designationId}" id="designationId" required>
+						<option th:each="d : ${designations}" th:value="${d.id}" th:text="${d.name}"
+						        th:attr="data-all-div=${d.handlesAllDivisions}"></option>
+					</select>
+					<span class="admin-field-error" th:if="${#fields.hasErrors('designationId')}" th:errors="*{designationId}"></span>
+				</label>
+				<div id="divisionFieldWrap">
+					<label>Division
+						<select th:field="*{divisionId}" id="divisionId">
+							<option th:each="d : ${divisions}" th:value="${d.id}" th:text="${d.name}"></option>
+						</select>
+						<span class="admin-field-error" th:if="${#fields.hasErrors('divisionId')}" th:errors="*{divisionId}"></span>
+					</label>
+				</div>
+				<label>Reporting officer (optional)
+					<select th:field="*{reportingOfficerId}" id="reportingOfficerId">
+						<option value="">— None —</option>
+						<option th:each="o : ${reportingOfficers}" th:value="${o.id}"
+						        th:text="|${o.fullName} (${o.email})|"></option>
+					</select>
+				</label>
+				<button type="submit" class="admin-btn">Create officer</button>
+			</form>
+			<script th:inline="javascript">
+				(function () {
+					var des = document.getElementById('designationId');
+					var wrap = document.getElementById('divisionFieldWrap');
+					var divSel = document.getElementById('divisionId');
+					if (!des || !wrap || !divSel) return;
+					function sync() {
+						var opt = des.options[des.selectedIndex];
+						var all = opt && opt.getAttribute('data-all-div') === 'true';
+						wrap.style.display = all ? 'none' : 'block';
+						divSel.disabled = !!all;
+					}
+					des.addEventListener('change', sync);
+					sync();
+				})();
+			</script>
+		</div>
+	</div>
+</section>
+</body>
+</html>

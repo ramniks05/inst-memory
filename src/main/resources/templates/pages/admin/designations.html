@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin-main}" lang="en">
+<body>
+<section layout:fragment="content">
+	<div class="dashboard-container">
+		<div class="page-header">
+			<div class="page-header-left">
+				<h1 class="page-title">Designations</h1>
+				<span class="page-subtitle">Titles and cross-division roles</span>
+			</div>
+		</div>
+		<div style="padding: 1.25rem 1.75rem;">
+			<h2 style="font-size:1rem;color:#003d7a;margin:0 0 0.75rem;">Add designation</h2>
+			<form th:action="@{/admin/designations/add}" th:object="${newDesignation}" method="post" class="admin-form-grid">
+				<label>Name
+					<input type="text" th:field="*{name}" required maxlength="255" placeholder="Designation title"/>
+				</label>
+				<label>Sort order (optional)
+					<input type="number" th:field="*{sortOrder}" placeholder="0"/>
+				</label>
+				<label style="flex-direction:row;align-items:center;gap:0.5rem;">
+					<input type="checkbox" th:field="*{handlesAllDivisions}"/>
+					<span>Handles all divisions (e.g. Secretary)</span>
+				</label>
+				<button type="submit" class="admin-btn">Create</button>
+			</form>
+			<h2 style="font-size:1rem;color:#003d7a;margin:1.5rem 0 0.75rem;">All designations</h2>
+			<table class="admin-table">
+				<thead>
+				<tr>
+					<th>Name</th>
+					<th>All divisions</th>
+					<th>Sort</th>
+					<th>Active</th>
+					<th>Save</th>
+					<th></th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr th:each="d : ${designations}">
+					<td>
+						<form th:id="|desf-${d.id}|" th:action="@{/admin/designations/update}" method="post" style="display:none;">
+							<input type="hidden" name="id" th:value="${d.id}"/>
+						</form>
+						<input type="text" name="name" required maxlength="255" th:value="${d.name}" th:form="|desf-${d.id}|"
+						       style="width:100%;max-width:18rem;padding:0.35rem 0.45rem;border:1px solid #c0ceea;border-radius:3px;font:inherit;"/>
+					</td>
+					<td>
+						<label style="display:inline-flex;align-items:center;gap:0.35rem;font-size:0.85rem;">
+							<input type="checkbox" name="handlesAllDivisions" value="true" th:checked="${d.handlesAllDivisions}" th:form="|desf-${d.id}|"/>
+							<span th:text="${d.handlesAllDivisions} ? 'Yes' : 'No'">—</span>
+						</label>
+					</td>
+					<td>
+						<input type="number" name="sortOrder" th:value="${d.sortOrder}" th:form="|desf-${d.id}|"
+						       style="width:4.5rem;padding:0.35rem 0.45rem;border:1px solid #c0ceea;border-radius:3px;font:inherit;"/>
+					</td>
+					<td>
+						<label style="display:inline-flex;align-items:center;gap:0.35rem;font-size:0.85rem;">
+							<input type="checkbox" name="active" value="true" th:checked="${d.active}" th:form="|desf-${d.id}|"/>
+							<span th:text="${d.active} ? 'Yes' : 'No'">—</span>
+						</label>
+					</td>
+					<td>
+						<button type="submit" class="admin-btn admin-btn--muted" style="font-size:0.78rem;padding:0.3rem 0.55rem;" th:form="|desf-${d.id}|">Save</button>
+					</td>
+					<td>
+						<form th:if="${d.active}" th:action="@{/admin/designations/deactivate}" method="post" style="display:inline;">
+							<input type="hidden" name="id" th:value="${d.id}"/>
+							<button type="submit" class="admin-btn admin-btn--danger" style="font-size:0.78rem;padding:0.3rem 0.55rem;">Deactivate</button>
+						</form>
+					</td>
+				</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</section>
+</body>
+</html>

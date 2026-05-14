@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin-main}" lang="en">
+<body>
+<section layout:fragment="content">
+	<div class="dashboard-container">
+		<div class="page-header">
+			<div class="page-header-left">
+				<h1 class="page-title">Published documents</h1>
+				<span class="page-subtitle">PDFs and visibility by designation (view only — officers upload from the portal)</span>
+			</div>
+		</div>
+		<div style="padding: 1.25rem 1.75rem;">
+			<form th:action="@{/admin/documents}" method="get" style="display:flex;flex-wrap:wrap;gap:0.75rem;align-items:flex-end;margin-bottom:1.25rem;padding:0.75rem 1rem;background:#f8fafc;border:1px solid #e0e7ef;border-radius:6px;max-width:36rem;">
+				<label style="display:flex;flex-direction:column;gap:0.25rem;font-weight:600;font-size:0.82rem;color:#334155;">From date
+					<input type="date" name="from" th:value="${filterFrom}" style="padding:0.4rem;border:1px solid #c0ceea;border-radius:3px;font:inherit;"/>
+				</label>
+				<label style="display:flex;flex-direction:column;gap:0.25rem;font-weight:600;font-size:0.82rem;color:#334155;">To date
+					<input type="date" name="to" th:value="${filterTo}" style="padding:0.4rem;border:1px solid #c0ceea;border-radius:3px;font:inherit;"/>
+				</label>
+				<button type="submit" class="admin-btn" style="margin-bottom:0.05rem;">Apply filter</button>
+				<a class="admin-btn admin-btn--muted" th:href="@{/admin/documents}" style="text-decoration:none;margin-bottom:0.05rem;">Clear</a>
+			</form>
+			<table class="admin-table">
+				<thead>
+				<tr>
+					<th>Title</th>
+					<th>Type</th>
+					<th>Uploaded by</th>
+					<th>Visible to designations</th>
+					<th>Uploaded</th>
+					<th></th>
+					<th></th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr th:if="${documentRows.isEmpty()}">
+					<td colspan="7" style="color:#64748b;">No documents yet.</td>
+				</tr>
+				<tr th:each="row : ${documentRows}">
+					<td th:text="${row.title}">—</td>
+					<td th:text="${row.documentTypeName}">—</td>
+					<td th:text="${row.uploadedByName}">—</td>
+					<td th:text="${row.visibleToDesignationsSummary}">—</td>
+					<td th:text="${#temporals.format(row.uploadDate, 'dd MMM yyyy HH:mm')}">—</td>
+					<td><a class="admin-btn admin-btn--muted" style="text-decoration:none;font-size:0.78rem;padding:0.3rem 0.55rem;" th:href="@{/documents/file/{id}(id=${row.id})}" target="_blank" rel="noopener">Open</a></td>
+					<td>
+						<form th:action="@{/admin/documents/delete}" method="post" style="display:inline;">
+							<input type="hidden" name="id" th:value="${row.id}"/>
+							<button type="submit" class="admin-btn admin-btn--danger" style="font-size:0.78rem;padding:0.3rem 0.55rem;">Delete</button>
+						</form>
+					</td>
+				</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</section>
+</body>
+</html>

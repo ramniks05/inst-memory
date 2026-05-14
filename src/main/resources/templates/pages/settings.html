@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}" lang="en">
+<body>
+<section layout:fragment="content">
+	<div class="settings-container">
+		<div class="page-header">
+			<div class="page-header-left">
+				<h1 class="page-title">Settings</h1>
+				<span class="page-subtitle">Account &amp; Preferences</span>
+			</div>
+		</div>
+		<div class="settings-body">
+			<nav class="settings-nav">
+				<button type="button" class="nav-item active">Profile</button>
+				<button type="button" class="nav-item">Password</button>
+				<button type="button" class="nav-item">Session</button>
+			</nav>
+			<div class="settings-panel">
+			</div>
+		</div>
+	</div>
+</section>
+</body>
+</html>

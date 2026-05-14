@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<footer class="footer" th:fragment="footer">
+	<div class="footer-top">
+		<nav class="footer-nav" aria-label="Footer navigation menu">
+			<ul>
+				<li><a href="#">Feedback</a></li>
+				<li><a href="#">Website Policies</a></li>
+				<li><a href="#">Contact Us</a></li>
+				<li><a href="#">Web Information Manager</a></li>
+			</ul>
+		</nav>
+	</div>
+	<div class="footer-bottom">
+		<div class="footer-bottom-inner">
+			<div class="footer-copy-text">
+				<p>Content Owned by Department of Land Resources, Ministry of Rural Development</p>
+				<p>
+					Developed and hosted by
+					<a href="http://www.nic.in/" target="_blank" rel="noopener">National Informatics Centre</a>,<br/>
+					<a href="http://meity.gov.in/" target="_blank" rel="noopener">Ministry of Electronics &amp; Information Technology</a>,
+					Government of India
+				</p>
+				<p>Last Updated: <strong th:text="${#dates.format(new java.util.Date(), 'dd MMM yyyy')}">—</strong></p>
+			</div>
+			<ul class="footer-logos">
+				<li>
+					<a href="http://www.nic.in/" target="_blank" rel="noopener">
+						<img th:src="@{/images/nic.svg}" alt="National Informatics Centre"/>
+					</a>
+				</li>
+				<li>
+					<a href="http://www.digitalindia.gov.in/" target="_blank" rel="noopener">
+						<img th:src="@{/images/digital-india.svg}" alt="Digital India"/>
+					</a>
+				</li>
+			</ul>
+		</div>
+	</div>
+</footer>
+
+<footer class="auth-site-footer" th:fragment="footerCompact" role="contentinfo" aria-label="Site ownership">
+	<small>Content owned by Department of Land Resources, Ministry of Rural Development, Government of India</small>
+</footer>
+</body>
+</html>

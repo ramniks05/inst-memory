@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}" lang="en">
+<body>
+<section layout:fragment="content">
+	<div class="officers-container">
+		<div class="page-header">
+			<div class="page-header-left">
+				<h1 class="page-title">Officer Management</h1>
+				<span class="page-subtitle">Registry of Officials</span>
+			</div>
+			<div class="header-actions">
+				<a th:if="${portalAdministrator}" th:href="@{/admin/officers/new}" class="btn btn-primary" style="text-decoration:none;"><span class="btn-icon">+</span> Add Officer</a>
+				<button type="button" class="btn btn-primary" th:unless="${portalAdministrator}" disabled><span class="btn-icon">+</span> Add Officer</button>
+			</div>
+		</div>
+		<section class="filters-section">
+			<div class="filter-label">Filter</div>
+			<div class="filter-divider"></div>
+			<div class="filter-group"><input type="text" class="filter-input" placeholder="Search by name or email..." disabled/></div>
+			<div class="filter-group"><select class="filter-input" disabled><option>All Divisions</option></select></div>
+		</section>
+	</div>
+</section>
+</body>
+</html>

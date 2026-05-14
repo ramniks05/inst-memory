@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}" lang="en">
+<body>
+<section layout:fragment="content">
+	<div class="reports-container">
+		<div class="page-header">
+			<div class="page-header-left">
+				<h1 class="page-title">Reports Dashboard</h1>
+				<span class="page-subtitle">Document Analytics</span>
+			</div>
+		</div>
+		<div class="filters-bar">
+			<span class="filter-label">Filter</span>
+			<div class="filter-divider"></div>
+			<div class="filter-group"><label class="filter-field-label">From Date</label><input type="date" class="filter-input" disabled/></div>
+			<div class="filter-group"><label class="filter-field-label">To Date</label><input type="date" class="filter-input" disabled/></div>
+		</div>
+	</div>
+</section>
+</body>
+</html>

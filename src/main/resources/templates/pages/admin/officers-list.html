@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin-main}" lang="en">
+<body>
+<section layout:fragment="content">
+	<div class="dashboard-container">
+		<div class="page-header">
+			<div class="page-header-left">
+				<h1 class="page-title">Officers</h1>
+				<span class="page-subtitle">Approved officer accounts</span>
+			</div>
+			<div class="header-actions" style="padding-right:1.75rem;">
+				<a class="admin-btn admin-btn--muted" th:href="@{/admin/officers/new}" style="text-decoration:none;">Add officer</a>
+			</div>
+		</div>
+		<div style="padding: 1.25rem 1.75rem;">
+			<table class="admin-table">
+				<thead>
+				<tr>
+					<th>Name</th>
+					<th>Email</th>
+					<th>Department</th>
+					<th>Division</th>
+					<th>Designation</th>
+					<th></th>
+					<th></th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr th:if="${officers.isEmpty()}">
+					<td colspan="7" style="color:#64748b;">No officers yet. Use Add officer.</td>
+				</tr>
+				<tr th:each="o : ${officers}">
+					<td th:text="${o.fullName}">—</td>
+					<td th:text="${o.email}">—</td>
+					<td th:text="${o.department}">—</td>
+					<td th:text="${o.division}">—</td>
+					<td th:text="${o.designation}">—</td>
+					<td>
+						<a class="admin-btn admin-btn--muted" style="text-decoration:none;font-size:0.78rem;padding:0.3rem 0.55rem;"
+						   th:href="@{/admin/officers/{id}/edit(id=${o.id})}">Edit</a>
+					</td>
+					<td>
+						<form th:action="@{/admin/officers/{id}/delete(id=${o.id})}" method="post" style="display:inline;"
+						      onsubmit="return confirm('Remove this officer\'s portal access?');">
+							<button type="submit" class="admin-btn admin-btn--danger" style="font-size:0.78rem;padding:0.3rem 0.55rem;">Remove</button>
+						</form>
+					</td>
+				</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</section>
+</body>
+</html>

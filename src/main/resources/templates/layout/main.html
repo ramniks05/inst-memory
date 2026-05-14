@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" lang="en">
+<head>
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1"/>
+	<title th:text="|${pageTitle} — Dolr|">Dolr</title>
+	<link rel="stylesheet" th:href="@{/css/app.css}"/>
+</head>
+<body>
+<div class="home-wrapper">
+	<aside th:if="${signedIn && !portalAdministrator}" th:replace="~{fragments/sidebar :: sidebar (active=${activeMenu})}"></aside>
+	<aside th:if="${signedIn && portalAdministrator}" th:replace="~{fragments/admin-sidebar :: sidebar (active=${adminSidebarMenu})}"></aside>
+	<div class="main-wrapper">
+		<header th:replace="~{fragments/header :: header (showLogin=false, headerVariant='app')}"></header>
+		<main class="main-content">
+			<div class="content-container">
+				<section layout:fragment="content">
+					<p>Content</p>
+				</section>
+			</div>
+		</main>
+		<footer th:replace="~{fragments/footer :: footer}"></footer>
+	</div>
+</div>
+</body>
+</html>

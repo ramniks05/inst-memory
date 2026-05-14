@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1"/>
+	<title th:text="${pageTitle}">Institutional Memory Portal</title>
+	<link rel="stylesheet" th:href="@{/css/app.css}"/>
+</head>
+<body>
+<div class="landing-page">
+	<header th:replace="~{fragments/header :: header (showLogin=${headerShowLogin}, headerVariant='site')}"></header>
+
+	<section class="carousel" id="heroCarousel">
+		<div class="carousel-track">
+			<div class="slide active" data-slide="0" style="background:linear-gradient(135deg, #002a58 0%, #003d7a 60%, #004fa0 100%)">
+				<div class="slide-overlay"></div>
+				<div class="slide-body">
+					<p class="slide-eyebrow">Department of Land Resources</p>
+					<h2 class="slide-title">Institutional Memory Portal</h2>
+					<p class="slide-sub">Preserving and providing secure access to institutional knowledge and historical archives</p>
+				</div>
+			</div>
+			<div class="slide" data-slide="1" style="background:linear-gradient(135deg, #003d7a 0%, #005fa8 60%, #0076cc 100%)">
+				<div class="slide-overlay"></div>
+				<div class="slide-body">
+					<p class="slide-eyebrow">Document Management</p>
+					<h2 class="slide-title">Centralised Archive Repository</h2>
+					<p class="slide-sub">Upload, organise, and retrieve historical documents with enterprise-grade security</p>
+				</div>
+			</div>
+			<div class="slide" data-slide="2" style="background:linear-gradient(135deg, #1a2742 0%, #003d7a 50%, #00539e 100%)">
+				<div class="slide-overlay"></div>
+				<div class="slide-body">
+					<p class="slide-eyebrow">Officer Registry</p>
+					<h2 class="slide-title">Digital Officer Records</h2>
+					<p class="slide-sub">Maintain accurate, up-to-date records of all departmental officers and their roles</p>
+				</div>
+			</div>
+		</div>
+		<button type="button" class="carousel-btn prev" id="carouselPrev" aria-label="Previous slide">
+			<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+		</button>
+		<button type="button" class="carousel-btn next" id="carouselNext" aria-label="Next slide">
+			<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+		</button>
+		<div class="carousel-dots" id="carouselDots">
+			<button type="button" class="dot active" data-go="0" aria-label="Slide 1"></button>
+			<button type="button" class="dot" data-go="1" aria-label="Slide 2"></button>
+			<button type="button" class="dot" data-go="2" aria-label="Slide 3"></button>
+		</div>
+	</section>
+
+	<div class="quick-bar">
+		<div class="quick-bar-inner">
+			<a class="quick-item" th:href="@{/login}"><span class="quick-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg></span><span class="quick-label">Sign In</span></a>
+			<a class="quick-item" href="#"><span class="quick-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span><span class="quick-label">Resources</span></a>
+			<a class="quick-item" href="#"><span class="quick-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><span class="quick-label">Help Center</span></a>
+			<a class="quick-item" href="#"><span class="quick-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.63 3.32 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.64a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span><span class="quick-label">Contact</span></a>
+		</div>
+	</div>
+
+	<main class="page-body">
+		<div class="body-inner">
+			<div class="col-main">
+				<section class="section">
+					<div class="section-head"><h2 class="section-title">Portal Features</h2></div>
+					<div class="features-grid">
+						<div class="feature-card">
+							<div class="feature-icon-wrap"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#1e40af" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+							<h3 class="feature-title">Document Management</h3>
+							<p class="feature-desc">Upload, categorise, and manage institutional documents with full audit trail.</p>
+						</div>
+						<div class="feature-card">
+							<div class="feature-icon-wrap"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#1e40af" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg></div>
+							<h3 class="feature-title">Analytics Dashboard</h3>
+							<p class="feature-desc">Real-time insights into collections, officer activity, and archive growth.</p>
+						</div>
+						<div class="feature-card">
+							<div class="feature-icon-wrap"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#1e40af" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+							<h3 class="feature-title">Officer Registry</h3>
+							<p class="feature-desc">Centralised directory of departmental officers with role-based access control.</p>
+						</div>
+						<div class="feature-card">
+							<div class="feature-icon-wrap"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#1e40af" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+							<h3 class="feature-title">Secure Repository</h3>
+							<p class="feature-desc">Government-grade encryption and access controls for all archived records.</p>
+						</div>
+					</div>
+				</section>
+				<section class="section about-section">
+					<div class="section-head"><h2 class="section-title">About the Department</h2></div>
+					<div class="about-body">
+						<p>The Department of Land Resources, under the Ministry of Rural Development, Government of India, administers programmes and policies relating to land resources. This Institutional Memory Portal is designed to preserve, organise, and provide secure access to the department's institutional knowledge and historical archives.</p>
+						<p>The portal provides integrated tools for document management, officer records, archival retrieval, and comprehensive analytics — all in one secure, government-grade solution.</p>
+					</div>
+				</section>
+			</div>
+			<aside class="col-aside">
+				<section class="aside-section">
+					<div class="aside-head"><h3 class="aside-title">Latest News</h3></div>
+					<div class="news-list">
+						<div class="news-item">
+							<div class="news-date">Apr 27, 2026</div>
+							<h4 class="news-title">Institutional Memory Portal Goes Live</h4>
+							<p class="news-desc">The new portal is now operational, enabling officers to upload and retrieve institutional records.</p>
+							<a href="#" class="read-more">Read more →</a>
+						</div>
+						<div class="news-item">
+							<div class="news-date">Apr 20, 2026</div>
+							<h4 class="news-title">Archive System Enhanced</h4>
+							<p class="news-desc">Advanced archival and retrieval capabilities added with improved search and filtering.</p>
+							<a href="#" class="read-more">Read more →</a>
+						</div>
+					</div>
+				</section>
+				<section class="aside-section">
+					<div class="aside-head"><h3 class="aside-title">Notices &amp; Circulars</h3></div>
+					<ul class="notice-list">
+						<li class="notice-item"><span class="notice-dot"></span><div><span class="notice-tag circular">circular</span><span class="notice-text">Guidelines for Document Submission — FY 2026-27</span><span class="notice-date">02 May 2026</span></div></li>
+						<li class="notice-item"><span class="notice-dot"></span><div><span class="notice-tag notice">notice</span><span class="notice-text">Portal access is provisioned by your system administrator</span><span class="notice-date">28 Apr 2026</span></div></li>
+						<li class="notice-item"><span class="notice-dot"></span><div><span class="notice-tag order">order</span><span class="notice-text">Revised Archival Classification Standards Issued</span><span class="notice-date">22 Apr 2026</span></div></li>
+					</ul>
+				</section>
+			</aside>
+		</div>
+	</main>
+
+	<footer th:replace="~{fragments/footer :: footer}"></footer>
+</div>
+<script>
+(function(){
+	var slides = document.querySelectorAll('.carousel .slide');
+	var dots = document.querySelectorAll('.carousel-dots .dot');
+	var i = 0;
+	function show(n){
+		i = (n + slides.length) % slides.length;
+		slides.forEach(function(s,idx){ s.classList.toggle('active', idx===i); });
+		dots.forEach(function(d,idx){ d.classList.toggle('active', idx===i); });
+	}
+	document.getElementById('carouselPrev').addEventListener('click', function(){ show(i-1); });
+	document.getElementById('carouselNext').addEventListener('click', function(){ show(i+1); });
+	dots.forEach(function(d){ d.addEventListener('click', function(){ show(parseInt(d.getAttribute('data-go'),10)); }); });
+	setInterval(function(){ show(i+1); }, 5000);
+})();
+</script>
+</body>
+</html>

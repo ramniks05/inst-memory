@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<header class="header" th:classappend="${headerVariant == 'app'} ? ' header--compact'" th:fragment="header (showLogin, headerVariant)">
+	<th:block th:if="${headerVariant == 'site'}">
+		<div class="header-topbar">
+			<div class="topbar-left">
+				<span class="gov-hindi">भारत सरकार</span>
+				<span class="topbar-divider">|</span>
+				<span class="gov-english">GOVERNMENT OF INDIA</span>
+			</div>
+			<div class="topbar-right">
+				<th:block th:if="${showLogin}">
+					<a class="btn-login" th:href="@{/login}">Login</a>
+				</th:block>
+				<th:block th:if="${!showLogin && signedIn}">
+					<a class="topbar-icon-btn topbar-logout" th:href="@{/logout}" title="Sign out" aria-label="Sign out">
+						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+							<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+							<polyline points="16 17 21 12 16 7"/>
+							<line x1="21" y1="12" x2="9" y2="12"/>
+						</svg>
+					</a>
+				</th:block>
+			</div>
+		</div>
+		<div class="header-middle">
+			<div class="header-logo">
+				<img th:src="@{/images/emblem.svg}" alt="State Emblem of India" class="emblem-img" onerror="this.style.display='none'"/>
+				<div class="logo-text">
+					<span class="logo-hindi">भूमि संसाधन विभाग</span>
+					<strong class="logo-dept">DEPARTMENT OF LAND RESOURCES</strong>
+					<span class="logo-ministry">MINISTRY OF RURAL DEVELOPMENT</span>
+				</div>
+			</div>
+			<div class="header-logo-right"></div>
+		</div>
+	</th:block>
+	<th:block th:if="${headerVariant == 'app'}">
+		<div class="header-topbar header-topbar--app">
+			<div class="topbar-left topbar-left--app">
+				<a class="app-bar-link" th:href="@{/}" th:if="${!signedIn}">Home</a>
+				<a class="app-bar-link app-bar-welcome" th:href="@{/home}" th:if="${signedIn && portalAdministrator}" title="Welcome home">Welcome</a>
+				<a class="app-bar-link app-bar-welcome" th:href="@{/home/documents}" th:if="${signedIn && !portalAdministrator}" title="Documents">Welcome</a>
+				<th:block th:if="${portalAdministrator}">
+					<a class="app-bar-link" th:href="@{/admin/documents}">Admin</a>
+				</th:block>
+			</div>
+			<div class="topbar-right">
+				<th:block th:if="${!showLogin && signedIn}">
+					<a class="topbar-icon-btn topbar-logout" th:href="@{/logout}" title="Sign out" aria-label="Sign out">
+						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+							<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+							<polyline points="16 17 21 12 16 7"/>
+							<line x1="21" y1="12" x2="9" y2="12"/>
+						</svg>
+					</a>
+				</th:block>
+			</div>
+		</div>
+	</th:block>
+</header>
+</body>
+</html>
