@@ -31,24 +31,29 @@ public final class RoleCodes {
 		return t != null && OFFICER.equalsIgnoreCase(t);
 	}
 
+	/** True when this row is a departmental roster user (not the portal shell admin). */
+	public static boolean isDepartmentalUser(User user) {
+		if (user == null) {
+			return false;
+		}
+		if (isOfficerRole(user.getRole())) {
+			return true;
+		}
+		if (Boolean.TRUE.equals(user.getIsOfficer())) {
+			return true;
+		}
+		return user.getDesignationRef() != null || user.getDivisionRef() != null;
+	}
+
 	/**
-	 * Portal shell (master data, admin navigation): {@code ADMIN} role, explicitly not on the officer roster,
-	 * and no departmental profile links. Departmental rows that wrongly kept {@code ADMIN} are excluded.
+	 * Portal shell (master data, admin navigation): {@code ADMIN} role and not a departmental user.
+	 * Treats {@code is_officer} null as false so legacy admin rows still get the admin menu.
 	 */
 	public static boolean isPortalAdministrator(User user) {
 		if (user == null) {
 			return false;
 		}
-		if (isOfficerRole(user.getRole())) {
-			return false;
-		}
-		if (Boolean.TRUE.equals(user.getIsOfficer())) {
-			return false;
-		}
-		if (!Boolean.FALSE.equals(user.getIsOfficer())) {
-			return false;
-		}
-		if (user.getDesignationRef() != null || user.getDivisionRef() != null) {
+		if (isDepartmentalUser(user)) {
 			return false;
 		}
 		return isAdmin(user.getRole());
@@ -62,9 +67,6 @@ public final class RoleCodes {
 			return false;
 		}
 		if (Boolean.TRUE.equals(departmentalOfficer)) {
-			return false;
-		}
-		if (!Boolean.FALSE.equals(departmentalOfficer)) {
 			return false;
 		}
 		return isAdmin(role);

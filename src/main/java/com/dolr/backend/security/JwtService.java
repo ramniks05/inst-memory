@@ -4,64 +4,63 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 
 @Service
 public class JwtService {
 
-    private static final String SECRET =
-            "dolrSuperSecretKeyDolrSuperSecretKey123456";
+	private static final String DEFAULT_SECRET =
+			"dolrSuperSecretKeyDolrSuperSecretKey123456";
 
-    private final Key key =
-            Keys.hmacShaKeyFor(SECRET.getBytes());
+	@Value("${jwt.secret:dolrSuperSecretKeyDolrSuperSecretKey123456}")
+	private String secret;
 
-    // Generate token
-    public String generateToken(String email) {
+	private Key key;
 
-        return Jwts.builder()
-                .setSubject(email)
-                .setIssuedAt(new Date())
-                .setExpiration(
-                        new Date(System.currentTimeMillis()
-                                + 1000 * 60 * 60 * 24) // 24 hrs
-                )
-                .signWith(key, SignatureAlgorithm.HS256)
-                .compact();
-    }
+	@PostConstruct
+	void init() {
+		String effective = secret == null || secret.isBlank() ? DEFAULT_SECRET : secret.trim();
+		byte[] secretBytes = effective.getBytes(StandardCharsets.UTF_8);
+		if (secretBytes.length < 32) {
+			throw new IllegalStateException(
+					"jwt.secret must be at least 32 characters for HS256. Set JWT_SECRET in the environment.");
+		}
+		key = Keys.hmacShaKeyFor(secretBytes);
+	}
 
-    // Extract email
-    public String extractEmail(String token) {
+	public String generateToken(String email) {
+		return Jwts.builder()
+				.setSubject(email)
+				.setIssuedAt(new Date())
+				.setExpiration(new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24))
+				.signWith(key, SignatureAlgorithm.HS256)
+				.compact();
+	}
 
-        return extractClaims(token).getSubject();
-    }
+	public String extractEmail(String token) {
+		return extractClaims(token).getSubject();
+	}
 
-    // Validate token
-    public boolean isValid(String token, String email) {
+	public boolean isValid(String token, String email) {
+		String extractedEmail = extractEmail(token);
+		return extractedEmail.equals(email) && !isTokenExpired(token);
+	}
 
-        String extractedEmail = extractEmail(token);
+	private boolean isTokenExpired(String token) {
+		return extractClaims(token).getExpiration().before(new Date());
+	}
 
-        return extractedEmail.equals(email)
-                && !isTokenExpired(token);
-    }
-
-    // Expiration check
-    private boolean isTokenExpired(String token) {
-
-        return extractClaims(token)
-                .getExpiration()
-                .before(new Date());
-    }
-
-    // Claims
-    private Claims extractClaims(String token) {
-
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-    }
+	private Claims extractClaims(String token) {
+		return Jwts.parserBuilder()
+				.setSigningKey(key)
+				.build()
+				.parseClaimsJws(token)
+				.getBody();
+	}
 }

@@ -16,6 +16,22 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByEmailIgnoreCase(String email);
 
+	@Query("""
+			SELECT u FROM User u
+			LEFT JOIN FETCH u.designationRef
+			LEFT JOIN FETCH u.divisionRef
+			WHERE LOWER(u.email) = LOWER(:email)
+			""")
+	Optional<User> findByEmailIgnoreCaseWithProfile(@Param("email") String email);
+
+	@Query("""
+			SELECT u FROM User u
+			LEFT JOIN FETCH u.designationRef
+			LEFT JOIN FETCH u.divisionRef
+			WHERE u.id = :id
+			""")
+	Optional<User> findByIdWithProfile(@Param("id") Long id);
+
     boolean existsByRole(String role);
 
     List<OfficerProjection> findByDepartmentAndDivisionAndApprovedTrueAndIsOfficerTrue(

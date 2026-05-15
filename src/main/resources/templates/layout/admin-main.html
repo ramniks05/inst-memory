@@ -9,7 +9,7 @@
 </head>
 <body>
 <div class="home-wrapper">
-	<aside th:replace="~{fragments/admin-sidebar :: sidebar (active=${activeMenu})}"></aside>
+	<aside th:if="${signedIn}" th:replace="~{fragments/app-sidebar :: sidebar}"></aside>
 	<div class="main-wrapper">
 		<header th:replace="~{fragments/header :: header (showLogin=false, headerVariant='app')}"></header>
 		<main class="main-content">

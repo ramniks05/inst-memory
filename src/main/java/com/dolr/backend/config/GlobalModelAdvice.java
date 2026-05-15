@@ -1,6 +1,7 @@
 package com.dolr.backend.config;
 
 import com.dolr.backend.security.AdminAuthHelper;
+import com.dolr.backend.security.WebPaths;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -12,40 +13,49 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 public class GlobalModelAdvice {
 
 	private final AdminAuthHelper adminAuthHelper;
+	private final PortalPathSupport portalPathSupport;
 
 	@ModelAttribute("portalAdministrator")
-	public boolean portalAdministrator(HttpSession session) {
-		return adminAuthHelper.isPortalAdministrator(session);
+	public boolean portalAdministrator(HttpServletRequest request) {
+		return adminAuthHelper.isPortalAdministrator(request);
 	}
 
 	@ModelAttribute("signedIn")
-	public boolean signedIn(HttpSession session) {
-		return adminAuthHelper.userFromSession(session).isPresent();
+	public boolean signedIn(HttpServletRequest request) {
+		return adminAuthHelper.userFromRequest(request).isPresent();
 	}
 
-	/**
-	 * When an administrator uses officer-layout URLs ({@code /home/...}), the admin sidebar
-	 * still needs the correct {@code active} key for highlighting.
-	 */
-	@ModelAttribute("adminSidebarMenu")
-	public String adminSidebarMenu(HttpSession session, HttpServletRequest request) {
-		if (!adminAuthHelper.isPortalAdministrator(session)) {
-			return "";
+	/** Servlet context path, e.g. {@code /institutionalmemory} — use for every navigation link on server. */
+	@ModelAttribute("ctx")
+	public String contextPath(HttpServletRequest request) {
+		return portalPathSupport.linkPrefix(request);
+	}
+
+	/** Highlights the correct sidebar item from the current URL (works with context path on server). */
+	@ModelAttribute("activeMenu")
+	public String activeMenu(HttpServletRequest request) {
+		String path = WebPaths.servletPath(request);
+		if (path.startsWith("/admin/document-types")) {
+			return "admin-document-types";
 		}
-		String uri = request.getRequestURI();
-		String cp = request.getContextPath();
-		if (cp != null && !cp.isEmpty() && !"/".equals(cp) && uri.startsWith(cp)) {
-			uri = uri.substring(cp.length());
+		if (path.startsWith("/admin/designations")) {
+			return "admin-designations";
 		}
-		if (uri.startsWith("/home/documents")) {
-			return "admin-documents";
+		if (path.startsWith("/admin/divisions")) {
+			return "admin-divisions";
 		}
-		if (uri.startsWith("/home/officers")) {
+		if (path.startsWith("/admin/officers") || path.contains("/admin/officers/")) {
 			return "admin-officers";
 		}
-		if ("/home".equals(uri)) {
-			return "";
+		if (path.startsWith("/admin/documents")) {
+			return "admin-documents";
 		}
-		return "admin-documents";
+		if ("/home".equals(path)) {
+			return "dashboard";
+		}
+		if (path.startsWith("/home/documents")) {
+			return "documents";
+		}
+		return "";
 	}
 }

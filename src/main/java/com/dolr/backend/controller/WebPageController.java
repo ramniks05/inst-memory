@@ -4,12 +4,15 @@ import com.dolr.backend.dto.ApiResponse;
 import com.dolr.backend.dto.LoginRequest;
 import com.dolr.backend.dto.LoginResponse;
 import com.dolr.backend.entity.User;
+import com.dolr.backend.repository.UserRepository;
 import com.dolr.backend.security.AdminAuthHelper;
 import com.dolr.backend.security.RoleCodes;
 import com.dolr.backend.service.AuthService;
 import com.dolr.backend.service.DesignationService;
 import com.dolr.backend.service.DocumentService;
 import com.dolr.backend.service.DocumentTypeService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -29,13 +32,14 @@ public class WebPageController {
 
 	private final AuthService authService;
 	private final AdminAuthHelper adminAuthHelper;
+	private final UserRepository userRepository;
 	private final DocumentService documentService;
 	private final DocumentTypeService documentTypeService;
 	private final DesignationService designationService;
 
 	@GetMapping("/")
-	public String landing(HttpSession session, Model model) {
-		Optional<User> u = adminAuthHelper.userFromSession(session);
+	public String landing(HttpServletRequest request, Model model) {
+		Optional<User> u = adminAuthHelper.userFromRequest(request);
 		if (u.isPresent()) {
 			if (RoleCodes.isPortalAdministrator(u.get())) {
 				return "redirect:/home";
@@ -49,11 +53,20 @@ public class WebPageController {
 
 	@GetMapping("/login")
 	public String login(
+			HttpServletRequest request,
 			Model model,
 			@RequestParam(required = false) String error,
 			@RequestParam(required = false) String reason) {
+		Optional<User> existing = adminAuthHelper.userFromRequest(request);
+		if (existing.isPresent()) {
+			if (RoleCodes.isPortalAdministrator(existing.get())) {
+				return "redirect:/home";
+			}
+			return "redirect:/home/documents";
+		}
 		model.addAttribute("pageTitle", "Sign In");
 		model.addAttribute("headerShowLogin", false);
+		model.addAttribute("headerShowHome", true);
 		if (error != null) {
 			model.addAttribute("loginError", loginErrorMessage(reason));
 		}
@@ -64,6 +77,8 @@ public class WebPageController {
 	public String loginPost(
 			@RequestParam String email,
 			@RequestParam String password,
+			HttpServletRequest request,
+			HttpServletResponse response,
 			HttpSession session) {
 		try {
 			LoginRequest req = new LoginRequest();
@@ -72,6 +87,8 @@ public class WebPageController {
 			ApiResponse<LoginResponse> resp = authService.login(req);
 			if (resp.isSuccess() && resp.getData() != null && resp.getData().getToken() != null) {
 				session.setAttribute("jwt", resp.getData().getToken());
+				userRepository.findByEmailIgnoreCaseWithProfile(email.trim().toLowerCase())
+						.ifPresent(u -> adminAuthHelper.bindUserAfterLogin(request, response, u));
 				if (Boolean.TRUE.equals(resp.getData().getPortalAdministrator())) {
 					return "redirect:/home";
 				}
@@ -105,8 +122,9 @@ public class WebPageController {
 	}
 
 	@GetMapping("/logout")
-	public String logout(HttpSession session) {
+	public String logout(HttpServletRequest request, HttpServletResponse response, HttpSession session) {
 		if (session != null) {
+			adminAuthHelper.clearWebSession(request, response, session);
 			session.invalidate();
 		}
 		return "redirect:/login";

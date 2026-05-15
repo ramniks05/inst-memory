@@ -32,13 +32,33 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 			JOIN FETCH d.documentType
 			JOIN FETCH d.uploadedBy
 			LEFT JOIN FETCH d.visibleToDesignations
-			WHERE (:from IS NULL OR d.uploadDate >= :from)
-			AND (:toExclusive IS NULL OR d.uploadDate < :toExclusive)
+			WHERE d.uploadDate >= :uploadFrom
 			ORDER BY d.uploadDate DESC
 			""")
-	List<Document> findAllForAdminListingFiltered(
-			@Param("from") LocalDateTime from,
-			@Param("toExclusive") LocalDateTime toExclusive);
+	List<Document> findAllForAdminListingFrom(@Param("uploadFrom") LocalDateTime uploadFrom);
+
+	@Query("""
+			SELECT DISTINCT d FROM Document d
+			JOIN FETCH d.documentType
+			JOIN FETCH d.uploadedBy
+			LEFT JOIN FETCH d.visibleToDesignations
+			WHERE d.uploadDate < :uploadToExclusive
+			ORDER BY d.uploadDate DESC
+			""")
+	List<Document> findAllForAdminListingBefore(@Param("uploadToExclusive") LocalDateTime uploadToExclusive);
+
+	@Query("""
+			SELECT DISTINCT d FROM Document d
+			JOIN FETCH d.documentType
+			JOIN FETCH d.uploadedBy
+			LEFT JOIN FETCH d.visibleToDesignations
+			WHERE d.uploadDate >= :uploadFrom
+			AND d.uploadDate < :uploadToExclusive
+			ORDER BY d.uploadDate DESC
+			""")
+	List<Document> findAllForAdminListingBetween(
+			@Param("uploadFrom") LocalDateTime uploadFrom,
+			@Param("uploadToExclusive") LocalDateTime uploadToExclusive);
 
 	@Query("""
 			SELECT DISTINCT d FROM Document d

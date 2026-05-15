@@ -36,6 +36,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.beans.PropertyEditorSupport;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -528,20 +529,26 @@ public class AdminWebController {
 	public String adminDocumentsList(
 			HttpSession session,
 			Model model,
-			@RequestParam(required = false) String from,
-			@RequestParam(required = false) String to) {
+			@RequestParam(name = "dateFrom", required = false) String dateFrom,
+			@RequestParam(name = "dateTo", required = false) String dateTo) {
 		String deny = redirectUnlessAdmin(session, adminAuthHelper);
 		if (deny != null) {
 			return deny;
 		}
-		LocalDate fromD = parseOptionalLocalDate(from);
-		LocalDate toD = parseOptionalLocalDate(to);
+		LocalDate fromD = parseOptionalLocalDate(dateFrom);
+		LocalDate toD = parseOptionalLocalDate(dateTo);
+		boolean filterRequested = (dateFrom != null && !dateFrom.isBlank())
+				|| (dateTo != null && !dateTo.isBlank());
+		boolean filterInvalid = filterRequested && fromD == null && toD == null;
 		model.addAttribute("pageTitle", "Published documents");
 		model.addAttribute("activeMenu", "admin-documents");
 		model.addAttribute("headerShowLogin", false);
-		model.addAttribute("filterFrom", from != null ? from.trim() : "");
-		model.addAttribute("filterTo", to != null ? to.trim() : "");
-		model.addAttribute("documentRows", documentService.listAllForAdminListing(fromD, toD));
+		model.addAttribute("filterFrom", dateFrom != null ? dateFrom.trim() : "");
+		model.addAttribute("filterTo", dateTo != null ? dateTo.trim() : "");
+		model.addAttribute("filterInvalid", filterInvalid);
+		model.addAttribute("documentRows", filterInvalid
+				? List.of()
+				: documentService.listAllForAdminListing(fromD, toD));
 		return "pages/admin/documents-list";
 	}
 

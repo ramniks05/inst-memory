@@ -10,11 +10,14 @@
 				<span class="gov-english">GOVERNMENT OF INDIA</span>
 			</div>
 			<div class="topbar-right">
+				<th:block th:if="${headerShowHome}">
+					<a class="btn-login" th:href="@{/}">Home</a>
+				</th:block>
 				<th:block th:if="${showLogin}">
 					<a class="btn-login" th:href="@{/login}">Login</a>
 				</th:block>
 				<th:block th:if="${!showLogin && signedIn}">
-					<a class="topbar-icon-btn topbar-logout" th:href="@{/logout}" title="Sign out" aria-label="Sign out">
+					<a class="topbar-icon-btn topbar-logout" th:href="${ctx + '/logout'}" title="Sign out" aria-label="Sign out">
 						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
 							<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
 							<polyline points="16 17 21 12 16 7"/>
@@ -39,16 +42,11 @@
 	<th:block th:if="${headerVariant == 'app'}">
 		<div class="header-topbar header-topbar--app">
 			<div class="topbar-left topbar-left--app">
-				<a class="app-bar-link" th:href="@{/}" th:if="${!signedIn}">Home</a>
-				<a class="app-bar-link app-bar-welcome" th:href="@{/home}" th:if="${signedIn && portalAdministrator}" title="Welcome home">Welcome</a>
-				<a class="app-bar-link app-bar-welcome" th:href="@{/home/documents}" th:if="${signedIn && !portalAdministrator}" title="Documents">Welcome</a>
-				<th:block th:if="${portalAdministrator}">
-					<a class="app-bar-link" th:href="@{/admin/documents}">Admin</a>
-				</th:block>
+				<span class="app-bar-title" th:if="${signedIn}">Institutional Memory Portal</span>
 			</div>
 			<div class="topbar-right">
-				<th:block th:if="${!showLogin && signedIn}">
-					<a class="topbar-icon-btn topbar-logout" th:href="@{/logout}" title="Sign out" aria-label="Sign out">
+				<th:block th:if="${signedIn}">
+					<a class="topbar-icon-btn topbar-logout" th:href="${ctx + '/logout'}" title="Sign out" aria-label="Sign out">
 						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
 							<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
 							<polyline points="16 17 21 12 16 7"/>

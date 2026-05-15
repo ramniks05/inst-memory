@@ -2,16 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 <footer class="footer" th:fragment="footer">
-	<div class="footer-top">
-		<nav class="footer-nav" aria-label="Footer navigation menu">
-			<ul>
-				<li><a href="#">Feedback</a></li>
-				<li><a href="#">Website Policies</a></li>
-				<li><a href="#">Contact Us</a></li>
-				<li><a href="#">Web Information Manager</a></li>
-			</ul>
-		</nav>
-	</div>
+	<!-- Was below: now first — main ownership / logos (dark band) -->
 	<div class="footer-bottom">
 		<div class="footer-bottom-inner">
 			<div class="footer-copy-text">
@@ -37,6 +28,17 @@
 				</li>
 			</ul>
 		</div>
+	</div>
+	<!-- Was above: now last — policy links (lighter strip at very bottom) -->
+	<div class="footer-top">
+		<nav class="footer-nav" aria-label="Footer navigation menu">
+			<ul>
+				<li><a href="#">Feedback</a></li>
+				<li><a href="#">Website Policies</a></li>
+				<li><a href="#">Contact Us</a></li>
+				<li><a href="#">Web Information Manager</a></li>
+			</ul>
+		</nav>
 	</div>
 </footer>
 

@@ -1,7 +1,7 @@
 -- Application users (matches JPA User entity; Spring Boot snake_case column names).
 -- Must run before V3 (ALTER users) and V4 (documents FK to users).
 
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id                      BIGSERIAL PRIMARY KEY,
     full_name               VARCHAR(255),
     email                   VARCHAR(255) CONSTRAINT uk_users_email UNIQUE,

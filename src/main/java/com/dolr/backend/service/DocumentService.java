@@ -14,6 +14,7 @@ import com.dolr.backend.security.JwtService;
 import com.dolr.backend.security.RoleCodes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.unit.DataSize;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.ContentDisposition;
@@ -51,6 +52,9 @@ public class DocumentService {
 	@Value("${app.documents.upload-dir:uploads/documents}")
 	private String uploadDirConfig;
 
+	@Value("${spring.servlet.multipart.max-file-size:30MB}")
+	private DataSize maxMultipartFileSize;
+
 	@Value("${server.servlet.context-path:}")
 	private String servletContextPath;
 
@@ -73,15 +77,30 @@ public class DocumentService {
 		return documentRepository.findAllForAdminListing().stream().map(this::toListItem).toList();
 	}
 
-	/** Optional inclusive date bounds (upload day). Pass null for open-ended. */
+	/** Optional inclusive date bounds on upload day (calendar dates in server timezone). */
 	@Transactional(readOnly = true)
 	public List<DocumentListItemResponse> listAllForAdminListing(LocalDate fromInclusive, LocalDate toInclusive) {
 		if (fromInclusive == null && toInclusive == null) {
 			return listAllForAdminListing();
 		}
-		LocalDateTime fromDt = fromInclusive != null ? fromInclusive.atStartOfDay() : null;
-		LocalDateTime toExclusive = toInclusive != null ? toInclusive.plusDays(1).atStartOfDay() : null;
-		return documentRepository.findAllForAdminListingFiltered(fromDt, toExclusive).stream()
+		if (fromInclusive != null && toInclusive != null) {
+			if (fromInclusive.isAfter(toInclusive)) {
+				LocalDate swap = fromInclusive;
+				fromInclusive = toInclusive;
+				toInclusive = swap;
+			}
+			LocalDateTime fromDt = fromInclusive.atStartOfDay();
+			LocalDateTime toExclusive = toInclusive.plusDays(1).atStartOfDay();
+			return documentRepository.findAllForAdminListingBetween(fromDt, toExclusive).stream()
+					.map(this::toListItem)
+					.toList();
+		}
+		if (fromInclusive != null) {
+			return documentRepository.findAllForAdminListingFrom(fromInclusive.atStartOfDay()).stream()
+					.map(this::toListItem)
+					.toList();
+		}
+		return documentRepository.findAllForAdminListingBefore(toInclusive.plusDays(1).atStartOfDay()).stream()
 				.map(this::toListItem)
 				.toList();
 	}
@@ -166,6 +185,10 @@ public class DocumentService {
 		}
 		if (file == null || file.isEmpty()) {
 			return ApiResponse.error("PDF file is required");
+		}
+		long maxBytes = maxMultipartFileSize.toBytes();
+		if (file.getSize() > maxBytes) {
+			return ApiResponse.error("PDF is too large (maximum " + maxMultipartFileSize + ")");
 		}
 		final byte[] bytes;
 		try {
