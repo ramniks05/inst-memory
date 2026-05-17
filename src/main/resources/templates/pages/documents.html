@@ -4,49 +4,25 @@
       layout:decorate="~{layout/main}" lang="en">
 <body>
 <section layout:fragment="content">
-	<div class="documents-upload-container">
+	<div class="documents-upload-container documents-page">
 		<div class="page-header">
 			<div class="page-header-left">
 				<h1 class="page-title">Documents</h1>
 				<span class="page-subtitle">PDFs published for your designation</span>
 			</div>
-			<div class="header-actions" style="padding-right:1.75rem;" th:if="${!portalAdministrator}">
-				<a style="display:inline-flex;padding:0.45rem 0.9rem;background:#003d7a;color:#fff;border:none;border-radius:3px;font-weight:600;font-size:0.85rem;text-decoration:none;"
-				   th:href="@{/home/documents/new}">Upload PDF</a>
+			<div class="header-actions" th:if="${!portalAdministrator}">
+				<a class="doc-upload-btn" th:href="@{/home/documents/new}">Upload PDF</a>
 			</div>
 		</div>
-		<div style="padding: 1.25rem 1.75rem;">
-			<div th:if="${uploadSuccess}" style="margin-bottom:1rem;padding:0.75rem 1rem;border-radius:4px;font-size:0.9rem;background:#e8f5e9;color:#1b5e20;" th:text="${uploadSuccess}"></div>
-			<div th:if="${noDesignation}" style="margin-bottom:1rem;padding:0.75rem 1rem;border-radius:4px;font-size:0.9rem;background:#ffebee;color:#b71c1c;">
+
+		<div class="documents-page__body">
+			<div th:if="${uploadSuccess}" class="doc-flash doc-flash--ok" th:text="${uploadSuccess}"></div>
+			<div th:if="${noDesignation}" class="doc-flash doc-flash--warn">
 				Your profile has no designation assigned. Ask an administrator to set your designation so you can see documents targeted to your level.
 			</div>
-			<table style="width:100%;border-collapse:collapse;font-size:0.88rem;background:#fff;border:1px solid #e0e7ef;">
-				<thead>
-				<tr style="background:#f4f6f9;">
-					<th style="padding:0.5rem 0.65rem;border-bottom:1px solid #e0e7ef;text-align:left;color:#003d7a;">Title</th>
-					<th style="padding:0.5rem 0.65rem;border-bottom:1px solid #e0e7ef;text-align:left;color:#003d7a;">Type</th>
-					<th style="padding:0.5rem 0.65rem;border-bottom:1px solid #e0e7ef;text-align:left;color:#003d7a;">Uploaded by</th>
-					<th style="padding:0.5rem 0.65rem;border-bottom:1px solid #e0e7ef;text-align:left;color:#003d7a;">Visible to designations</th>
-					<th style="padding:0.5rem 0.65rem;border-bottom:1px solid #e0e7ef;text-align:left;color:#003d7a;">Uploaded</th>
-					<th style="padding:0.5rem 0.65rem;border-bottom:1px solid #e0e7ef;text-align:left;color:#003d7a;"></th>
-				</tr>
-				</thead>
-				<tbody>
-				<tr th:if="${documentRows.isEmpty()}">
-					<td colspan="6" style="padding:0.65rem;color:#64748b;">No documents are available for your designation yet.</td>
-				</tr>
-				<tr th:each="row : ${documentRows}">
-					<td style="padding:0.5rem 0.65rem;border-bottom:1px solid #e0e7ef;" th:text="${row.title}">—</td>
-					<td style="padding:0.5rem 0.65rem;border-bottom:1px solid #e0e7ef;" th:text="${row.documentTypeName}">—</td>
-					<td style="padding:0.5rem 0.65rem;border-bottom:1px solid #e0e7ef;" th:text="${row.uploadedByName}">—</td>
-					<td style="padding:0.5rem 0.65rem;border-bottom:1px solid #e0e7ef;" th:text="${row.visibleToDesignationsSummary}">—</td>
-					<td style="padding:0.5rem 0.65rem;border-bottom:1px solid #e0e7ef;" th:text="${#temporals.format(row.uploadDate, 'dd MMM yyyy HH:mm')}">—</td>
-					<td style="padding:0.5rem 0.65rem;border-bottom:1px solid #e0e7ef;">
-						<a style="display:inline-flex;padding:0.3rem 0.55rem;background:#eef3fb;border:1px solid #c0ceea;border-radius:3px;color:#003d7a;font-weight:600;font-size:0.78rem;text-decoration:none;" th:href="@{/documents/file/{id}(id=${row.id})}" target="_blank" rel="noopener">View PDF</a>
-					</td>
-				</tr>
-				</tbody>
-			</table>
+
+			<div th:replace="~{fragments/documents-table :: documentsTable(${documentPage}, ${documentsShowDelete}, 'No documents are available for your designation yet.')}"></div>
+			<div th:replace="~{fragments/documents-pagination :: documentsPagination(${documentPage}, ${documentsListPath}, '', '')}"></div>
 		</div>
 	</div>
 </section>

@@ -14,7 +14,10 @@
 					<a class="btn-login" th:href="@{/}">Home</a>
 				</th:block>
 				<th:block th:if="${showLogin}">
-					<a class="btn-login" th:href="@{/login}">Login</a>
+					<a class="btn-login btn-login--prominent" th:href="@{/login}">
+						<svg class="btn-login__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+						Login
+					</a>
 				</th:block>
 				<th:block th:if="${!showLogin && signedIn}">
 					<a class="topbar-icon-btn topbar-logout" th:href="${ctx + '/logout'}" title="Sign out" aria-label="Sign out">

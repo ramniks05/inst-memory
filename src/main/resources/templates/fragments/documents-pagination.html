@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<nav th:fragment="documentsPagination(documentPage, listPath, filterFrom, filterTo)"
+     class="doc-pagination"
+     th:if="${documentPage.totalPages > 1}"
+     aria-label="Document list pages">
+
+	<th:block th:if="${listPath == '/home/documents'}">
+		<a class="doc-pagination__btn"
+		   th:classappend="${!documentPage.hasPrevious} ? ' doc-pagination__btn--disabled' : ''"
+		   th:href="${documentPage.hasPrevious} ? @{/home/documents(page=${documentPage.page - 1}, size=${documentPage.size})} : '#'"
+		   th:attr="aria-disabled=${!documentPage.hasPrevious}"
+		   rel="prev">Previous</a>
+		<span class="doc-pagination__pages">
+			<th:block th:each="p : ${#numbers.sequence(0, documentPage.totalPages - 1)}">
+				<a th:if="${p != documentPage.page}"
+				   class="doc-pagination__page"
+				   th:href="@{/home/documents(page=${p}, size=${documentPage.size})}"
+				   th:text="${p + 1}">1</a>
+				<span th:if="${p == documentPage.page}"
+				      class="doc-pagination__page doc-pagination__page--current"
+				      th:text="${p + 1}"
+				      aria-current="page">1</span>
+			</th:block>
+		</span>
+		<a class="doc-pagination__btn"
+		   th:classappend="${!documentPage.hasNext} ? ' doc-pagination__btn--disabled' : ''"
+		   th:href="${documentPage.hasNext} ? @{/home/documents(page=${documentPage.page + 1}, size=${documentPage.size})} : '#'"
+		   th:attr="aria-disabled=${!documentPage.hasNext}"
+		   rel="next">Next</a>
+	</th:block>
+
+	<th:block th:if="${listPath == '/admin/documents'}">
+		<a class="doc-pagination__btn"
+		   th:classappend="${!documentPage.hasPrevious} ? ' doc-pagination__btn--disabled' : ''"
+		   th:href="${documentPage.hasPrevious} ? @{/admin/documents(page=${documentPage.page - 1}, size=${documentPage.size}, dateFrom=${filterFrom}, dateTo=${filterTo})} : '#'"
+		   th:attr="aria-disabled=${!documentPage.hasPrevious}"
+		   rel="prev">Previous</a>
+		<span class="doc-pagination__pages">
+			<th:block th:each="p : ${#numbers.sequence(0, documentPage.totalPages - 1)}">
+				<a th:if="${p != documentPage.page}"
+				   class="doc-pagination__page"
+				   th:href="@{/admin/documents(page=${p}, size=${documentPage.size}, dateFrom=${filterFrom}, dateTo=${filterTo})}"
+				   th:text="${p + 1}">1</a>
+				<span th:if="${p == documentPage.page}"
+				      class="doc-pagination__page doc-pagination__page--current"
+				      th:text="${p + 1}"
+				      aria-current="page">1</span>
+			</th:block>
+		</span>
+		<a class="doc-pagination__btn"
+		   th:classappend="${!documentPage.hasNext} ? ' doc-pagination__btn--disabled' : ''"
+		   th:href="${documentPage.hasNext} ? @{/admin/documents(page=${documentPage.page + 1}, size=${documentPage.size}, dateFrom=${filterFrom}, dateTo=${filterTo})} : '#'"
+		   th:attr="aria-disabled=${!documentPage.hasNext}"
+		   rel="next">Next</a>
+	</th:block>
+</nav>
+</body>
+</html>

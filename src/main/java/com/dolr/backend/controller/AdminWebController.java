@@ -6,6 +6,7 @@ import com.dolr.backend.dto.ApiResponse;
 import com.dolr.backend.dto.CreateDocumentTypeRequest;
 import com.dolr.backend.dto.CreateDesignationRequest;
 import com.dolr.backend.dto.CreateDivisionRequest;
+import com.dolr.backend.dto.DocumentTablePage;
 import com.dolr.backend.dto.UpdateDesignationRequest;
 import com.dolr.backend.dto.UpdateDivisionRequest;
 import com.dolr.backend.dto.UpdateOfficerRequest;
@@ -530,7 +531,9 @@ public class AdminWebController {
 			HttpSession session,
 			Model model,
 			@RequestParam(name = "dateFrom", required = false) String dateFrom,
-			@RequestParam(name = "dateTo", required = false) String dateTo) {
+			@RequestParam(name = "dateTo", required = false) String dateTo,
+			@RequestParam(name = "page", defaultValue = "0") int page,
+			@RequestParam(name = "size", defaultValue = "10") int size) {
 		String deny = redirectUnlessAdmin(session, adminAuthHelper);
 		if (deny != null) {
 			return deny;
@@ -546,9 +549,19 @@ public class AdminWebController {
 		model.addAttribute("filterFrom", dateFrom != null ? dateFrom.trim() : "");
 		model.addAttribute("filterTo", dateTo != null ? dateTo.trim() : "");
 		model.addAttribute("filterInvalid", filterInvalid);
-		model.addAttribute("documentRows", filterInvalid
-				? List.of()
-				: documentService.listAllForAdminListing(fromD, toD));
+		model.addAttribute("documentPage", filterInvalid
+				? DocumentTablePage.builder()
+						.content(List.of())
+						.page(0)
+						.totalPages(0)
+						.totalElements(0)
+						.size(size)
+						.hasPrevious(false)
+						.hasNext(false)
+						.build()
+				: documentService.listAllForAdminListingPaged(page, size, fromD, toD));
+		model.addAttribute("documentsListPath", "/admin/documents");
+		model.addAttribute("documentsShowDelete", true);
 		return "pages/admin/documents-list";
 	}
 

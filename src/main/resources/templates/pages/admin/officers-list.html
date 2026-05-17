@@ -18,6 +18,7 @@
 			<table class="admin-table">
 				<thead>
 				<tr>
+					<th class="admin-table__sno">S.No.</th>
 					<th>Name</th>
 					<th>Email</th>
 					<th>Department</th>
@@ -29,9 +30,10 @@
 				</thead>
 				<tbody>
 				<tr th:if="${officers.isEmpty()}">
-					<td colspan="7" style="color:#64748b;">No officers yet. Use Add officer.</td>
+					<td colspan="8" style="color:#64748b;">No officers yet. Use Add officer.</td>
 				</tr>
-				<tr th:each="o : ${officers}">
+				<tr th:each="o, iterStat : ${officers}">
+					<td class="admin-table__sno" th:text="${iterStat.count}">1</td>
 					<td th:text="${o.fullName}">—</td>
 					<td th:text="${o.email}">—</td>
 					<td th:text="${o.department}">—</td>

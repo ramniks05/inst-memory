@@ -2,6 +2,7 @@ package com.dolr.backend.service;
 
 import com.dolr.backend.dto.ApiResponse;
 import com.dolr.backend.dto.DocumentListItemResponse;
+import com.dolr.backend.dto.DocumentTablePage;
 import com.dolr.backend.entity.Designation;
 import com.dolr.backend.entity.Document;
 import com.dolr.backend.entity.DocumentType;
@@ -14,6 +15,10 @@ import com.dolr.backend.security.JwtService;
 import com.dolr.backend.security.RoleCodes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.util.unit.DataSize;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -34,14 +39,21 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Year;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class DocumentService {
+
+	private static final int DEFAULT_PAGE_SIZE = 10;
+	private static final int MAX_PAGE_SIZE = 50;
 
 	private final DocumentRepository documentRepository;
 	private final DocumentTypeRepository documentTypeRepository;
@@ -60,28 +72,40 @@ public class DocumentService {
 
 	@Transactional(readOnly = true)
 	public List<DocumentListItemResponse> listVisibleForViewer(User viewer) {
+		return listVisibleForViewerPaged(viewer, 0, DEFAULT_PAGE_SIZE).getContent();
+	}
+
+	@Transactional(readOnly = true)
+	public DocumentTablePage listVisibleForViewerPaged(User viewer, int page, int size) {
 		User live = userRepository.findById(viewer.getId()).orElse(viewer);
-		List<Document> list;
+		Pageable pageable = pageable(page, size);
 		if (RoleCodes.isPortalAdministrator(live)) {
-			list = documentRepository.findAllForAdminListing();
-		} else if (live.getDesignationRef() != null) {
-			list = documentRepository.findVisibleForDesignation(live.getDesignationRef().getId());
-		} else {
-			list = List.of();
+			return toTablePage(documentRepository.findAllForAdminListingPage(pageable));
 		}
-		return list.stream().map(this::toListItem).toList();
+		if (live.getDesignationRef() != null) {
+			return toTablePage(documentRepository.findVisibleForDesignationPage(
+					live.getDesignationRef().getId(), pageable));
+		}
+		return emptyTablePage(page, size);
 	}
 
 	@Transactional(readOnly = true)
 	public List<DocumentListItemResponse> listAllForAdminListing() {
-		return documentRepository.findAllForAdminListing().stream().map(this::toListItem).toList();
+		return listAllForAdminListingPaged(0, DEFAULT_PAGE_SIZE, null, null).getContent();
 	}
 
 	/** Optional inclusive date bounds on upload day (calendar dates in server timezone). */
 	@Transactional(readOnly = true)
 	public List<DocumentListItemResponse> listAllForAdminListing(LocalDate fromInclusive, LocalDate toInclusive) {
+		return listAllForAdminListingPaged(0, DEFAULT_PAGE_SIZE, fromInclusive, toInclusive).getContent();
+	}
+
+	@Transactional(readOnly = true)
+	public DocumentTablePage listAllForAdminListingPaged(
+			int page, int size, LocalDate fromInclusive, LocalDate toInclusive) {
+		Pageable pageable = pageable(page, size);
 		if (fromInclusive == null && toInclusive == null) {
-			return listAllForAdminListing();
+			return toTablePage(documentRepository.findAllForAdminListingPage(pageable));
 		}
 		if (fromInclusive != null && toInclusive != null) {
 			if (fromInclusive.isAfter(toInclusive)) {
@@ -91,18 +115,14 @@ public class DocumentService {
 			}
 			LocalDateTime fromDt = fromInclusive.atStartOfDay();
 			LocalDateTime toExclusive = toInclusive.plusDays(1).atStartOfDay();
-			return documentRepository.findAllForAdminListingBetween(fromDt, toExclusive).stream()
-					.map(this::toListItem)
-					.toList();
+			return toTablePage(documentRepository.findAllForAdminListingBetweenPage(fromDt, toExclusive, pageable));
 		}
 		if (fromInclusive != null) {
-			return documentRepository.findAllForAdminListingFrom(fromInclusive.atStartOfDay()).stream()
-					.map(this::toListItem)
-					.toList();
+			return toTablePage(documentRepository.findAllForAdminListingFromPage(
+					fromInclusive.atStartOfDay(), pageable));
 		}
-		return documentRepository.findAllForAdminListingBefore(toInclusive.plusDays(1).atStartOfDay()).stream()
-				.map(this::toListItem)
-				.toList();
+		return toTablePage(documentRepository.findAllForAdminListingBeforePage(
+				toInclusive.plusDays(1).atStartOfDay(), pageable));
 	}
 
 	@Transactional(readOnly = true)
@@ -129,6 +149,52 @@ public class DocumentService {
 		} catch (Exception e) {
 			return ApiResponse.error("Invalid token");
 		}
+	}
+
+	private Pageable pageable(int page, int size) {
+		int safePage = Math.max(0, page);
+		int safeSize = Math.min(Math.max(1, size), MAX_PAGE_SIZE);
+		return PageRequest.of(safePage, safeSize, Sort.by(Sort.Direction.DESC, "uploadDate"));
+	}
+
+	private DocumentTablePage toTablePage(Page<Document> docPage) {
+		List<Long> ids = docPage.getContent().stream().map(Document::getId).toList();
+		List<DocumentListItemResponse> content;
+		if (ids.isEmpty()) {
+			content = List.of();
+		} else {
+			Map<Long, Document> byId = documentRepository.findByIdsWithDetails(ids).stream()
+					.collect(Collectors.toMap(Document::getId, Function.identity()));
+			content = ids.stream()
+					.map(byId::get)
+					.filter(Objects::nonNull)
+					.sorted(Comparator.comparing(Document::getUploadDate).reversed())
+					.map(this::toListItem)
+					.toList();
+		}
+		return DocumentTablePage.builder()
+				.content(content)
+				.page(docPage.getNumber())
+				.totalPages(docPage.getTotalPages())
+				.totalElements(docPage.getTotalElements())
+				.size(docPage.getSize())
+				.hasPrevious(docPage.hasPrevious())
+				.hasNext(docPage.hasNext())
+				.build();
+	}
+
+	private DocumentTablePage emptyTablePage(int page, int size) {
+		int safePage = Math.max(0, page);
+		int safeSize = Math.min(Math.max(1, size), MAX_PAGE_SIZE);
+		return DocumentTablePage.builder()
+				.content(List.of())
+				.page(safePage)
+				.totalPages(0)
+				.totalElements(0)
+				.size(safeSize)
+				.hasPrevious(false)
+				.hasNext(false)
+				.build();
 	}
 
 	private DocumentListItemResponse toListItem(Document d) {

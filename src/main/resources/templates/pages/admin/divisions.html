@@ -26,6 +26,7 @@
 			<table class="admin-table">
 				<thead>
 				<tr>
+					<th class="admin-table__sno">S.No.</th>
 					<th>Name</th>
 					<th>Sort</th>
 					<th>Active</th>
@@ -34,7 +35,8 @@
 				</tr>
 				</thead>
 				<tbody>
-				<tr th:each="d : ${divisions}">
+				<tr th:each="d, iterStat : ${divisions}">
+					<td class="admin-table__sno" th:text="${iterStat.count}">1</td>
 					<td>
 						<form th:id="|divf-${d.id}|" th:action="@{/admin/divisions/update}" method="post" style="display:none;">
 							<input type="hidden" name="id" th:value="${d.id}"/>

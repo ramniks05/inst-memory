@@ -26,6 +26,7 @@
 			<table class="admin-table">
 				<thead>
 				<tr>
+					<th class="admin-table__sno">S.No.</th>
 					<th>Name</th>
 					<th>Sort</th>
 					<th>Active</th>
@@ -33,7 +34,8 @@
 				</tr>
 				</thead>
 				<tbody>
-				<tr th:each="t : ${documentTypes}">
+				<tr th:each="t, iterStat : ${documentTypes}">
+					<td class="admin-table__sno" th:text="${iterStat.count}">1</td>
 					<td th:text="${t.name}">—</td>
 					<td th:text="${t.sortOrder}">0</td>
 					<td th:text="${t.active} ? 'Yes' : 'No'">—</td>

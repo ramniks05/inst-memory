@@ -65,8 +65,6 @@ public class WebPageController {
 			return "redirect:/home/documents";
 		}
 		model.addAttribute("pageTitle", "Sign In");
-		model.addAttribute("headerShowLogin", false);
-		model.addAttribute("headerShowHome", true);
 		if (error != null) {
 			model.addAttribute("loginError", loginErrorMessage(reason));
 		}
@@ -199,16 +197,22 @@ public class WebPageController {
 	}
 
 	@GetMapping("/home/documents")
-	public String documents(HttpSession session, Model model) {
+	public String documents(
+			HttpSession session,
+			Model model,
+			@RequestParam(name = "page", defaultValue = "0") int page,
+			@RequestParam(name = "size", defaultValue = "10") int size) {
 		if (adminAuthHelper.userFromSession(session).isEmpty()) {
 			return "redirect:/login";
 		}
 		User viewer = adminAuthHelper.userFromSession(session).orElseThrow();
-		model.addAttribute("documentRows", documentService.listVisibleForViewer(viewer));
+		model.addAttribute("documentPage", documentService.listVisibleForViewerPaged(viewer, page, size));
 		model.addAttribute("noDesignation", documentService.isOfficerMissingDesignation(viewer.getId()));
 		model.addAttribute("pageTitle", "Documents");
 		model.addAttribute("activeMenu", "documents");
 		model.addAttribute("headerShowLogin", false);
+		model.addAttribute("documentsListPath", "/home/documents");
+		model.addAttribute("documentsShowDelete", false);
 		return "pages/documents";
 	}
 

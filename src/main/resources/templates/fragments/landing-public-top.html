@@ -2,73 +2,53 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 <th:block th:fragment="publicTop">
-	<section class="carousel" id="heroCarousel">
-		<div class="carousel-track">
-			<div class="slide active" data-slide="0" style="background:linear-gradient(135deg, #002a58 0%, #003d7a 60%, #004fa0 100%)">
-				<div class="slide-overlay"></div>
-				<div class="slide-body">
-					<p class="slide-eyebrow">Department of Land Resources</p>
-					<h2 class="slide-title">Institutional Memory Portal</h2>
-					<p class="slide-sub">Preserving and providing secure access to institutional knowledge and historical archives</p>
-				</div>
-			</div>
-			<div class="slide" data-slide="1" style="background:linear-gradient(135deg, #003d7a 0%, #005fa8 60%, #0076cc 100%)">
-				<div class="slide-overlay"></div>
-				<div class="slide-body">
-					<p class="slide-eyebrow">Document Management</p>
-					<h2 class="slide-title">Centralised Archive Repository</h2>
-					<p class="slide-sub">Upload, organise, and retrieve historical documents with enterprise-grade security</p>
-				</div>
-			</div>
-			<div class="slide" data-slide="2" style="background:linear-gradient(135deg, #1a2742 0%, #003d7a 50%, #00539e 100%)">
-				<div class="slide-overlay"></div>
-				<div class="slide-body">
-					<p class="slide-eyebrow">Officer Registry</p>
-					<h2 class="slide-title">Digital Officer Records</h2>
-					<p class="slide-sub">Maintain accurate, up-to-date records of all departmental officers and their roles</p>
-				</div>
-			</div>
+	<section class="landing-hero" aria-label="Portal introduction">
+		<div class="landing-hero__bg" role="presentation">
+			<img class="landing-hero__img" th:src="@{/images/landing-hero.png}" alt="" loading="eager"/>
+			<div class="landing-hero__shade"></div>
 		</div>
-		<button type="button" class="carousel-btn prev" id="carouselPrev" aria-label="Previous slide">
-			<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-		</button>
-		<button type="button" class="carousel-btn next" id="carouselNext" aria-label="Next slide">
-			<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-		</button>
-		<div class="carousel-dots" id="carouselDots">
-			<button type="button" class="dot active" data-go="0" aria-label="Slide 1"></button>
-			<button type="button" class="dot" data-go="1" aria-label="Slide 2"></button>
-			<button type="button" class="dot" data-go="2" aria-label="Slide 3"></button>
+		<div class="landing-hero__inner">
+			<div class="landing-hero__copy">
+				<p class="landing-hero__eyebrow">Department of Land Resources</p>
+				<h1 class="landing-hero__title">Institutional Memory Portal</h1>
+				<p class="landing-hero__lead">Secure access to departmental records for officers and administrators.</p>
+				<a class="landing-hero__cta landing-hero__cta--primary" th:href="@{/login}">Sign in to portal</a>
+			</div>
+			<div class="landing-hero__visual" aria-hidden="true">
+				<div class="icon-rotator">
+					<div class="icon-rotator__ring"></div>
+					<div class="icon-rotator__slides">
+						<div class="icon-rotator__slide icon-rotator__slide--active" data-icon="0">
+							<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M28 6H12a4 4 0 0 0-4 4v28a4 4 0 0 0 4 4h24a4 4 0 0 0 4-4V18L28 6z"/><path d="M28 6v12h12"/><path d="M16 26h16M16 32h12"/></svg>
+							<span>Documents</span>
+						</div>
+						<div class="icon-rotator__slide" data-icon="1">
+							<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><rect x="10" y="22" width="28" height="18" rx="2"/><path d="M16 22V16a8 8 0 0 1 16 0v6"/></svg>
+							<span>Secure access</span>
+						</div>
+						<div class="icon-rotator__slide" data-icon="2">
+							<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 36h32"/><path d="M14 36V20l10-8 10 8v16"/><path d="M20 28h8v8h-8z"/></svg>
+							<span>Archive</span>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 	</section>
-
-	<div class="quick-bar">
-		<div class="quick-bar-inner">
-			<a class="quick-item" th:href="@{/login}"><span class="quick-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg></span><span class="quick-label">Sign In</span></a>
-			<a class="quick-item" href="#"><span class="quick-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span><span class="quick-label">Resources</span></a>
-			<a class="quick-item" href="#"><span class="quick-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><span class="quick-label">Help Center</span></a>
-			<a class="quick-item" href="#"><span class="quick-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.63 3.32 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.64a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span><span class="quick-label">Contact</span></a>
-		</div>
-	</div>
 </th:block>
 
 <script th:fragment="carouselScript">
-(function(){
-	var slides = document.querySelectorAll('.carousel .slide');
-	var dots = document.querySelectorAll('.carousel-dots .dot');
+(function () {
+	var slides = document.querySelectorAll('.icon-rotator__slide');
 	if (!slides.length) return;
 	var i = 0;
-	function show(n){
+	function show(n) {
 		i = (n + slides.length) % slides.length;
-		slides.forEach(function(s,idx){ s.classList.toggle('active', idx===i); });
-		dots.forEach(function(d,idx){ d.classList.toggle('active', idx===i); });
+		slides.forEach(function (s, idx) {
+			s.classList.toggle('icon-rotator__slide--active', idx === i);
+		});
 	}
-	var prev = document.getElementById('carouselPrev');
-	var next = document.getElementById('carouselNext');
-	if (prev) prev.addEventListener('click', function(){ show(i-1); });
-	if (next) next.addEventListener('click', function(){ show(i+1); });
-	dots.forEach(function(d){ d.addEventListener('click', function(){ show(parseInt(d.getAttribute('data-go'),10)); }); });
-	setInterval(function(){ show(i+1); }, 5000);
+	setInterval(function () { show(i + 1); }, 3200);
 })();
 </script>
 </body>
