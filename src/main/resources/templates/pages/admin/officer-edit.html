@@ -14,9 +14,9 @@
 				<a class="admin-btn admin-btn--muted" th:href="@{/admin/officers}" style="text-decoration:none;">Back to list</a>
 			</div>
 		</div>
-		<div style="padding: 1.25rem 1.75rem;">
+		<div class="form-page-body">
 			<div class="admin-flash admin-flash--err" th:if="${formError}" th:text="${formError}"></div>
-			<form th:action="@{/admin/officers/{id}/edit(id=${officerId})}" th:object="${officerEdit}" method="post" class="admin-form-grid" style="max-width:32rem;">
+			<form th:action="@{/admin/officers/{id}/edit(id=${officerId})}" th:object="${officerEdit}" method="post" class="admin-form-grid">
 				<label>Full name
 					<input type="text" th:field="*{fullName}" required maxlength="255"/>
 					<span class="admin-field-error" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></span>

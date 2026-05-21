@@ -1,9 +1,9 @@
 package com.dolr.backend.config;
 
 import com.dolr.backend.security.AdminAuthHelper;
+import com.dolr.backend.security.RoleCodes;
 import com.dolr.backend.security.WebPaths;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -31,6 +31,41 @@ public class GlobalModelAdvice {
 		return portalPathSupport.linkPrefix(request);
 	}
 
+	@ModelAttribute("navUserName")
+	public String navUserName(HttpServletRequest request) {
+		return adminAuthHelper.userFromRequest(request)
+				.map(u -> u.getFullName() != null && !u.getFullName().isBlank() ? u.getFullName().trim() : u.getEmail())
+				.orElse("");
+	}
+
+	@ModelAttribute("navUserDesignation")
+	public String navUserDesignation(HttpServletRequest request) {
+		return adminAuthHelper.userFromRequest(request).map(u -> {
+			if (u.getDesignation() != null && !u.getDesignation().isBlank()) return u.getDesignation().trim();
+			return RoleCodes.isPortalAdministrator(u) ? "Administrator" : "—";
+		}).orElse("");
+	}
+
+	@ModelAttribute("navUserInitials")
+	public String navUserInitials(HttpServletRequest request) {
+		return adminAuthHelper.userFromRequest(request)
+				.map(u -> {
+					String name = u.getFullName() != null && !u.getFullName().isBlank() ? u.getFullName().trim() : u.getEmail();
+					String[] parts = name.trim().split("\\s+");
+					if (parts.length >= 2) {
+						return (parts[0].substring(0, 1) + parts[parts.length - 1].substring(0, 1)).toUpperCase();
+					}
+					return parts[0].length() >= 2 ? parts[0].substring(0, 2).toUpperCase() : parts[0].substring(0, 1).toUpperCase();
+				}).orElse("?");
+	}
+
+	@ModelAttribute("navUserRole")
+	public String navUserRole(HttpServletRequest request) {
+		return adminAuthHelper.userFromRequest(request)
+				.map(u -> RoleCodes.isPortalAdministrator(u) ? "Administrator" : "Officer")
+				.orElse("");
+	}
+
 	/** Highlights the correct sidebar item from the current URL (works with context path on server). */
 	@ModelAttribute("activeMenu")
 	public String activeMenu(HttpServletRequest request) {
@@ -52,6 +87,15 @@ public class GlobalModelAdvice {
 		}
 		if ("/home".equals(path)) {
 			return "dashboard";
+		}
+		if (path.startsWith("/home/mpr")) {
+			return "mpr";
+		}
+		if (path.startsWith("/home/change-password")) {
+			return "change-password";
+		}
+		if (path.startsWith("/home/my-uploads")) {
+			return "my-uploads";
 		}
 		if (path.startsWith("/home/documents")) {
 			return "documents";

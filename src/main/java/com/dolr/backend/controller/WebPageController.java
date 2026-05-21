@@ -11,6 +11,8 @@ import com.dolr.backend.service.AuthService;
 import com.dolr.backend.service.DesignationService;
 import com.dolr.backend.service.DocumentService;
 import com.dolr.backend.service.DocumentTypeService;
+import com.dolr.backend.service.DivisionService;
+import com.dolr.backend.service.MprService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -18,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,6 +39,8 @@ public class WebPageController {
 	private final DocumentService documentService;
 	private final DocumentTypeService documentTypeService;
 	private final DesignationService designationService;
+	private final DivisionService divisionService;
+	private final MprService mprService;
 
 	@GetMapping("/")
 	public String landing(HttpServletRequest request, Model model) {
@@ -256,6 +261,191 @@ public class WebPageController {
 		}
 		ra.addFlashAttribute("uploadSuccess", resp.getMessage());
 		return "redirect:/home/documents";
+	}
+
+	@GetMapping("/home/my-uploads")
+	public String myUploads(
+			HttpSession session,
+			Model model,
+			@RequestParam(name = "page", defaultValue = "0") int page,
+			@RequestParam(name = "size", defaultValue = "10") int size) {
+		Optional<User> opt = adminAuthHelper.userFromSession(session);
+		if (opt.isEmpty()) {
+			return "redirect:/login";
+		}
+		User officer = opt.get();
+		if (RoleCodes.isPortalAdministrator(officer)) {
+			return "redirect:/admin/documents";
+		}
+		model.addAttribute("documentPage", documentService.listUploadedByOfficerPaged(officer, page, size));
+		model.addAttribute("pageTitle", "My Uploads");
+		model.addAttribute("activeMenu", "my-uploads");
+		model.addAttribute("headerShowLogin", false);
+		model.addAttribute("documentsListPath", "/home/my-uploads");
+		model.addAttribute("documentsShowDelete", true);
+		return "pages/my-uploads";
+	}
+
+	@GetMapping("/home/my-uploads/{id}/edit")
+	public String myUploadsEditForm(
+			HttpSession session,
+			@PathVariable Long id,
+			Model model) {
+		Optional<User> opt = adminAuthHelper.userFromSession(session);
+		if (opt.isEmpty()) return "redirect:/login";
+		User officer = opt.get();
+		if (RoleCodes.isPortalAdministrator(officer)) return "redirect:/admin/documents";
+		var doc = documentService.getDocumentForEdit(officer, id);
+		if (doc == null) {
+			return "redirect:/home/my-uploads";
+		}
+		model.addAttribute("doc", doc);
+		model.addAttribute("documentTypes", documentTypeService.listActiveTypes());
+		model.addAttribute("designations", designationService.listActiveDesignations());
+		model.addAttribute("selectedDesignationIds",
+				doc.getVisibleToDesignations().stream()
+						.map(d -> d.getId()).collect(java.util.stream.Collectors.toSet()));
+		model.addAttribute("pageTitle", "Edit Document");
+		model.addAttribute("activeMenu", "my-uploads");
+		model.addAttribute("headerShowLogin", false);
+		return "pages/officer-document-edit";
+	}
+
+	@PostMapping("/home/my-uploads/{id}/edit")
+	public String myUploadsEditPost(
+			HttpSession session,
+			@PathVariable Long id,
+			@RequestParam String title,
+			@RequestParam Long documentTypeId,
+			@RequestParam(required = false) List<Long> designationIds,
+			RedirectAttributes ra) {
+		Optional<User> opt = adminAuthHelper.userFromSession(session);
+		if (opt.isEmpty()) return "redirect:/login";
+		User officer = opt.get();
+		if (RoleCodes.isPortalAdministrator(officer)) return "redirect:/admin/documents";
+		List<Long> ids = designationIds != null ? designationIds : List.of();
+		var resp = documentService.updateByOwner(officer, id, title, documentTypeId, ids);
+		if (!resp.isSuccess()) {
+			ra.addFlashAttribute("editError", resp.getMessage());
+			return "redirect:/home/my-uploads/" + id + "/edit";
+		}
+		ra.addFlashAttribute("flashSuccess", "Document updated successfully.");
+		return "redirect:/home/my-uploads";
+	}
+
+	@PostMapping("/home/my-uploads/delete")
+	public String myUploadsDelete(
+			HttpSession session,
+			@RequestParam Long id,
+			RedirectAttributes ra) {
+		Optional<User> opt = adminAuthHelper.userFromSession(session);
+		if (opt.isEmpty()) {
+			return "redirect:/login";
+		}
+		var resp = documentService.deleteByOwner(opt.get(), id);
+		if (!resp.isSuccess()) {
+			ra.addFlashAttribute("flashError", resp.getMessage());
+		} else {
+			ra.addFlashAttribute("flashSuccess", "Document deleted successfully.");
+		}
+		return "redirect:/home/my-uploads";
+	}
+
+	@GetMapping("/home/change-password")
+	public String changePasswordForm(HttpSession session, Model model) {
+		if (adminAuthHelper.userFromSession(session).isEmpty()) {
+			return "redirect:/login";
+		}
+		model.addAttribute("pageTitle", "Change Password");
+		model.addAttribute("activeMenu", "change-password");
+		model.addAttribute("headerShowLogin", false);
+		return "pages/change-password";
+	}
+
+	@PostMapping("/home/change-password")
+	public String changePasswordPost(
+			HttpSession session,
+			@RequestParam String currentPassword,
+			@RequestParam String newPassword,
+			@RequestParam String confirmPassword,
+			RedirectAttributes ra) {
+		Optional<User> opt = adminAuthHelper.userFromSession(session);
+		if (opt.isEmpty()) {
+			return "redirect:/login";
+		}
+		var result = authService.changePassword(opt.get(), currentPassword, newPassword, confirmPassword);
+		if (!result.isSuccess()) {
+			ra.addFlashAttribute("changePasswordError", result.getMessage());
+			return "redirect:/home/change-password";
+		}
+		ra.addFlashAttribute("changePasswordSuccess", "Your password has been updated successfully.");
+		return "redirect:/home/change-password";
+	}
+
+	// ── MPR ──────────────────────────────────────────────────────────────────
+
+	@GetMapping("/home/mpr")
+	public String mprList(
+			HttpSession session, Model model,
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size) {
+		Optional<User> opt = adminAuthHelper.userFromSession(session);
+		if (opt.isEmpty()) return "redirect:/login";
+		User officer = opt.get();
+		if (RoleCodes.isPortalAdministrator(officer)) return "redirect:/home";
+		model.addAttribute("mprPage", mprService.listByOfficerPaged(officer, page, size));
+		model.addAttribute("pageTitle", "MPR");
+		model.addAttribute("activeMenu", "mpr");
+		model.addAttribute("headerShowLogin", false);
+		return "pages/mpr-list";
+	}
+
+	@GetMapping("/home/mpr/new")
+	public String mprUploadForm(HttpSession session, Model model) {
+		Optional<User> opt = adminAuthHelper.userFromSession(session);
+		if (opt.isEmpty()) return "redirect:/login";
+		if (RoleCodes.isPortalAdministrator(opt.get())) return "redirect:/home";
+		model.addAttribute("divisions", divisionService.listActiveDivisions());
+		model.addAttribute("financialYears", MprService.financialYears());
+		model.addAttribute("months", MprService.months());
+		model.addAttribute("quarters", MprService.quarters());
+		model.addAttribute("pageTitle", "Upload MPR");
+		model.addAttribute("activeMenu", "mpr");
+		model.addAttribute("headerShowLogin", false);
+		return "pages/mpr-upload";
+	}
+
+	@PostMapping("/home/mpr/new")
+	public String mprUploadPost(
+			HttpSession session,
+			@RequestParam String divisionName,
+			@RequestParam String subject,
+			@RequestParam String reportType,
+			@RequestParam String financialYear,
+			@RequestParam(required = false) String periodLabel,
+			@RequestParam("files") List<MultipartFile> files,
+			RedirectAttributes ra) {
+		Optional<User> opt = adminAuthHelper.userFromSession(session);
+		if (opt.isEmpty()) return "redirect:/login";
+		User officer = opt.get();
+		if (RoleCodes.isPortalAdministrator(officer)) return "redirect:/home";
+		var resp = mprService.upload(officer, divisionName, subject, reportType, financialYear, periodLabel, files);
+		if (!resp.isSuccess()) {
+			ra.addFlashAttribute("uploadError", resp.getMessage());
+			return "redirect:/home/mpr/new";
+		}
+		ra.addFlashAttribute("flashSuccess", "MPR uploaded successfully.");
+		return "redirect:/home/mpr";
+	}
+
+	@PostMapping("/home/mpr/delete")
+	public String mprDelete(HttpSession session, @RequestParam Long id, RedirectAttributes ra) {
+		Optional<User> opt = adminAuthHelper.userFromSession(session);
+		if (opt.isEmpty()) return "redirect:/login";
+		var resp = mprService.deleteByOwner(opt.get(), id);
+		if (!resp.isSuccess()) ra.addFlashAttribute("flashError", resp.getMessage());
+		else ra.addFlashAttribute("flashSuccess", "MPR deleted.");
+		return "redirect:/home/mpr";
 	}
 
 	@GetMapping("/home/reports")

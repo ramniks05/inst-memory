@@ -21,7 +21,7 @@
 				Your profile has no designation assigned. Ask an administrator to set your designation so you can see documents targeted to your level.
 			</div>
 
-			<div th:replace="~{fragments/documents-table :: documentsTable(${documentPage}, ${documentsShowDelete}, 'No documents are available for your designation yet.')}"></div>
+			<div th:replace="~{fragments/documents-table :: documentsTable(${documentPage}, ${documentsShowDelete}, 'No documents are available for your designation yet.', '', false, '')}"></div>
 			<div th:replace="~{fragments/documents-pagination :: documentsPagination(${documentPage}, ${documentsListPath}, '', '')}"></div>
 		</div>
 	</div>

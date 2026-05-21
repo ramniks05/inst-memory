@@ -11,9 +11,9 @@
 				<span class="page-subtitle">Division and designation references</span>
 			</div>
 		</div>
-		<div style="padding: 1.25rem 1.75rem;">
+		<div class="form-page-body">
 			<div class="admin-flash admin-flash--err" th:if="${formError}" th:text="${formError}"></div>
-			<form th:action="@{/admin/officers/new}" th:object="${officer}" method="post" class="admin-form-grid" style="max-width:32rem;">
+			<form th:action="@{/admin/officers/new}" th:object="${officer}" method="post" class="admin-form-grid">
 				<label>Full name
 					<input type="text" th:field="*{fullName}" required maxlength="255"/>
 					<span class="admin-field-error" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></span>

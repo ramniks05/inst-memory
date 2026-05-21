@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}" lang="en">
+<body>
+<section layout:fragment="content">
+	<div class="documents-upload-container documents-page">
+		<div class="page-header">
+			<div class="page-header-left">
+				<h1 class="page-title">My Uploads</h1>
+				<span class="page-subtitle">Documents you have uploaded to the portal</span>
+			</div>
+			<div class="header-actions">
+				<a class="doc-upload-btn" th:href="@{/home/documents/new}">Upload PDF</a>
+			</div>
+		</div>
+
+		<div class="documents-page__body">
+			<div th:if="${flashSuccess}" class="doc-flash doc-flash--ok" th:text="${flashSuccess}"></div>
+			<div th:if="${flashError}" class="doc-flash doc-flash--err" th:text="${flashError}"></div>
+
+			<div th:replace="~{fragments/documents-table :: documentsTable(${documentPage}, ${documentsShowDelete}, 'You have not uploaded any documents yet.', '/home/my-uploads/delete', true, '/home/my-uploads')}"></div>
+			<div th:replace="~{fragments/documents-pagination :: documentsPagination(${documentPage}, ${documentsListPath}, '', '')}"></div>
+		</div>
+	</div>
+</section>
+</body>
+</html>

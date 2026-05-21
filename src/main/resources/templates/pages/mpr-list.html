@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}" lang="en">
+<body>
+<section layout:fragment="content">
+<div class="mpr-page">
+
+	<div class="page-header">
+		<div class="page-header-left">
+			<h1 class="page-title">MPR</h1>
+			<span class="page-subtitle">Monthly Progress Reports uploaded by you</span>
+		</div>
+		<div class="header-actions">
+			<a class="doc-upload-btn" th:href="@{/home/mpr/new}">Upload MPR</a>
+		</div>
+	</div>
+
+	<div class="documents-page__body">
+		<div th:if="${flashSuccess}" class="doc-flash doc-flash--ok" th:text="${flashSuccess}"></div>
+		<div th:if="${flashError}"   class="doc-flash doc-flash--err" th:text="${flashError}"></div>
+
+		<div class="doc-table-wrap">
+			<div class="doc-table-toolbar" th:if="${mprPage.totalElements > 0}">
+				<span class="doc-table-count"
+				      th:with="toIdx=${(mprPage.number + 1) * mprPage.size < mprPage.totalElements ? (mprPage.number + 1) * mprPage.size : mprPage.totalElements}"
+				      th:text="|Showing ${mprPage.number * mprPage.size + 1}–${toIdx} of ${mprPage.totalElements}|">
+					Showing records
+				</span>
+			</div>
+			<div class="doc-table-scroll">
+				<table class="doc-table">
+					<thead>
+					<tr>
+						<th class="doc-table__th doc-table__th--sno">S.No.</th>
+						<th class="doc-table__th">Division</th>
+						<th class="doc-table__th doc-table__th--title">Subject</th>
+						<th class="doc-table__th">Type</th>
+						<th class="doc-table__th">FY</th>
+						<th class="doc-table__th">Period</th>
+						<th class="doc-table__th">File</th>
+						<th class="doc-table__th doc-table__th--date">Uploaded</th>
+						<th class="doc-table__th doc-table__th--actions" colspan="2">Actions</th>
+					</tr>
+					</thead>
+					<tbody>
+					<tr th:if="${mprPage.empty}">
+						<td colspan="10" class="doc-table__empty">
+							<span class="doc-table__empty-icon" aria-hidden="true">📋</span>
+							<span>No MPR records uploaded yet. Click <strong>Upload MPR</strong> to get started.</span>
+						</td>
+					</tr>
+					<tr th:each="m, stat : ${mprPage.content}" class="doc-table__row">
+						<td class="doc-table__td doc-table__td--sno"
+						    th:text="${mprPage.number * mprPage.size + stat.count}">1</td>
+						<td class="doc-table__td" th:text="${m.divisionName}">—</td>
+						<td class="doc-table__td doc-table__td--title" th:text="${m.subject}">—</td>
+						<td class="doc-table__td">
+							<span class="mpr-type-badge"
+							      th:classappend="${'mpr-type-badge--' + m.reportType.toLowerCase()}"
+							      th:text="${m.reportType.substring(0,1) + m.reportType.substring(1).toLowerCase()}">—</span>
+						</td>
+						<td class="doc-table__td" th:text="${m.financialYear}">—</td>
+						<td class="doc-table__td" th:text="${m.periodLabel != null ? m.periodLabel : '—'}">—</td>
+						<td class="doc-table__td mpr-filename" th:text="${m.originalFileName}">—</td>
+						<td class="doc-table__td doc-table__td--date"
+						    th:text="${#temporals.format(m.uploadDate, 'dd MMM yyyy, HH:mm')}">—</td>
+						<td class="doc-table__td doc-table__td--actions">
+							<a class="doc-btn doc-btn--view"
+							   th:href="@{/mpr/file/{id}(id=${m.id})}"
+							   target="_blank" rel="noopener">View</a>
+						</td>
+						<td class="doc-table__td doc-table__td--actions">
+							<form th:action="@{/home/mpr/delete}" method="post" style="margin:0;">
+								<input type="hidden" name="id" th:value="${m.id}"/>
+								<button type="submit" class="doc-btn doc-btn--danger"
+								        onclick="return confirm('Delete this MPR permanently?');">Delete</button>
+							</form>
+						</td>
+					</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<!-- Pagination -->
+			<div class="doc-pagination" th:if="${mprPage.totalPages > 1}">
+				<a class="doc-pagination__btn" th:if="${mprPage.hasPrevious}"
+				   th:href="@{/home/mpr(page=${mprPage.number - 1}, size=${mprPage.size})}">← Prev</a>
+				<span class="doc-pagination__info"
+				      th:text="|Page ${mprPage.number + 1} of ${mprPage.totalPages}|"></span>
+				<a class="doc-pagination__btn" th:if="${mprPage.hasNext}"
+				   th:href="@{/home/mpr(page=${mprPage.number + 1}, size=${mprPage.size})}">Next →</a>
+			</div>
+		</div>
+	</div>
+</div>
+</section>
+</body>
+</html>

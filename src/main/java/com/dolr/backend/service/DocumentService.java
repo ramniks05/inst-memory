@@ -126,6 +126,50 @@ public class DocumentService {
 	}
 
 	@Transactional(readOnly = true)
+	public Document getDocumentForEdit(User officer, Long id) {
+		Document d = documentRepository.findByIdWithVisibility(id).orElse(null);
+		if (d == null) return null;
+		if (!d.getUploadedBy().getId().equals(officer.getId())) return null;
+		return d;
+	}
+
+	@Transactional
+	public ApiResponse<Void> updateByOwner(User officer, Long id, String title,
+			Long documentTypeId, List<Long> designationIds) {
+		if (officer == null) return ApiResponse.error("Not signed in.");
+		Document d = documentRepository.findByIdWithVisibility(id).orElse(null);
+		if (d == null) return ApiResponse.error("Document not found.");
+		if (!d.getUploadedBy().getId().equals(officer.getId()))
+			return ApiResponse.error("You can only edit your own documents.");
+		if (title == null || title.isBlank()) return ApiResponse.error("Title is required.");
+		if (documentTypeId == null) return ApiResponse.error("Document type is required.");
+		if (designationIds == null || designationIds.isEmpty())
+			return ApiResponse.error("Select at least one designation.");
+		DocumentType dt = documentTypeRepository.findById(documentTypeId).orElse(null);
+		if (dt == null || !Boolean.TRUE.equals(dt.getActive()))
+			return ApiResponse.error("Document type not found.");
+		Set<Designation> desigs = new HashSet<>();
+		for (Long did : designationIds) {
+			if (did == null) continue;
+			Designation des = designationRepository.findById(did).orElse(null);
+			if (des == null || !Boolean.TRUE.equals(des.getActive()))
+				return ApiResponse.error("Invalid designation selected.");
+			desigs.add(des);
+		}
+		d.setTitle(title.trim());
+		d.setDocumentType(dt);
+		d.setVisibleToDesignations(desigs);
+		documentRepository.save(d);
+		return ApiResponse.ok(null);
+	}
+
+	@Transactional(readOnly = true)
+	public DocumentTablePage listUploadedByOfficerPaged(User officer, int page, int size) {
+		Pageable pageable = pageable(page, size);
+		return toTablePage(documentRepository.findByUploadedByIdPage(officer.getId(), pageable));
+	}
+
+	@Transactional(readOnly = true)
 	public boolean isOfficerMissingDesignation(Long userId) {
 		User u = userRepository.findById(userId).orElse(null);
 		if (u == null || RoleCodes.isPortalAdministrator(u)) {
@@ -319,6 +363,23 @@ public class DocumentService {
 				.build();
 		documentRepository.save(doc);
 		return ApiResponse.ok("Document uploaded.");
+	}
+
+	@Transactional
+	public ApiResponse<Void> deleteByOwner(User officer, Long id) {
+		if (officer == null) {
+			return ApiResponse.error("Not signed in.");
+		}
+		Document d = documentRepository.findById(id).orElse(null);
+		if (d == null) {
+			return ApiResponse.error("Document not found.");
+		}
+		if (!d.getUploadedBy().getId().equals(officer.getId())) {
+			return ApiResponse.error("You can only delete your own documents.");
+		}
+		deleteStoredFile(d);
+		documentRepository.delete(d);
+		return ApiResponse.ok("Document deleted.");
 	}
 
 	@Transactional

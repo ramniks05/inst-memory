@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
-<div th:fragment="documentsTable(documentPage, showDelete, emptyMessage)" class="doc-table-wrap">
+<div th:fragment="documentsTable(documentPage, showDelete, emptyMessage, deletePath, showEdit, editBasePath)" class="doc-table-wrap">
 	<div class="doc-table-toolbar" th:if="${documentPage.totalElements > 0}">
 		<span class="doc-table-count"
 		      th:text="|Showing ${documentPage.fromIndex}–${documentPage.toIndex} of ${documentPage.totalElements}|">
@@ -18,12 +18,13 @@
 				<th class="doc-table__th">Uploaded by</th>
 				<th class="doc-table__th doc-table__th--visibility">Visible to</th>
 				<th class="doc-table__th doc-table__th--date">Uploaded</th>
-				<th class="doc-table__th doc-table__th--actions" th:colspan="${showDelete} ? 2 : 1">Actions</th>
+				<th class="doc-table__th doc-table__th--actions"
+				    th:colspan="${1 + (showDelete ? 1 : 0) + (showEdit ? 1 : 0)}">Actions</th>
 			</tr>
 			</thead>
 			<tbody>
 			<tr th:if="${documentPage.empty}">
-				<td th:colspan="${showDelete} ? 8 : 7" class="doc-table__empty">
+				<td th:colspan="${7 + (showDelete ? 1 : 0) + (showEdit ? 1 : 0)}" class="doc-table__empty">
 					<span class="doc-table__empty-icon" aria-hidden="true">📄</span>
 					<span th:text="${emptyMessage}">No documents yet.</span>
 				</td>
@@ -45,8 +46,14 @@
 						View PDF
 					</a>
 				</td>
+				<td class="doc-table__td doc-table__td--actions" th:if="${showEdit}">
+					<a class="doc-btn doc-btn--edit"
+					   th:href="${editBasePath + '/' + row.id + '/edit'}">
+						Edit
+					</a>
+				</td>
 				<td class="doc-table__td doc-table__td--actions" th:if="${showDelete}">
-					<form th:action="@{/admin/documents/delete}" method="post" class="doc-delete-form">
+					<form th:action="${deletePath}" method="post" class="doc-delete-form">
 						<input type="hidden" name="id" th:value="${row.id}"/>
 						<button type="submit" class="doc-btn doc-btn--danger"
 						        onclick="return confirm('Delete this document permanently?');">

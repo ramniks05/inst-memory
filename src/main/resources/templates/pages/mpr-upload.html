@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}" lang="en">
+<body>
+<section layout:fragment="content">
+<div class="mpr-page">
+
+	<div class="page-header">
+		<div class="page-header-left">
+			<h1 class="page-title">Upload MPR</h1>
+			<span class="page-subtitle">Monthly Progress Report</span>
+		</div>
+		<div class="header-actions">
+			<a class="admin-btn admin-btn--muted" th:href="@{/home/mpr}" style="text-decoration:none;">Back to MPR list</a>
+		</div>
+	</div>
+
+	<div class="form-page-body">
+		<div class="admin-flash admin-flash--err" th:if="${uploadError}" th:text="${uploadError}"></div>
+
+		<form th:action="@{/home/mpr/new}" method="post" enctype="multipart/form-data"
+		      class="mpr-form admin-form-grid" style="max-width:38rem;">
+
+			<!-- Division -->
+			<label>Division
+				<select name="divisionName" required>
+					<option value="">— Select division —</option>
+					<option th:each="d : ${divisions}" th:value="${d.name}" th:text="${d.name}"></option>
+				</select>
+			</label>
+
+			<!-- Subject -->
+			<label>Subject
+				<input type="text" name="subject" required maxlength="500" placeholder="e.g. Progress report for road construction"/>
+			</label>
+
+			<!-- Report type -->
+			<div class="mpr-type-row">
+				<span class="chpw-label" style="display:block;margin-bottom:0.4rem;">Report type</span>
+				<div class="mpr-type-btns">
+					<label class="mpr-type-btn">
+						<input type="radio" name="reportType" value="MONTHLY" required onchange="mprTypeChange(this.value)"/>
+						<span>Monthly</span>
+					</label>
+					<label class="mpr-type-btn">
+						<input type="radio" name="reportType" value="QUARTERLY" onchange="mprTypeChange(this.value)"/>
+						<span>Quarterly</span>
+					</label>
+					<label class="mpr-type-btn">
+						<input type="radio" name="reportType" value="YEARLY" onchange="mprTypeChange(this.value)"/>
+						<span>Yearly</span>
+					</label>
+				</div>
+			</div>
+
+			<!-- Financial year -->
+			<label>Financial year
+				<select name="financialYear" required>
+					<option value="">— Select FY —</option>
+					<option th:each="fy : ${financialYears}" th:value="${fy}" th:text="${fy}"></option>
+				</select>
+			</label>
+
+			<!-- Month (shown for MONTHLY) -->
+			<label id="monthRow" style="display:none;">Month
+				<select name="periodLabel" id="monthSelect">
+					<option value="">— Select month —</option>
+					<option th:each="m : ${months}" th:value="${m}" th:text="${m}"></option>
+				</select>
+			</label>
+
+			<!-- Quarter (shown for QUARTERLY) -->
+			<label id="quarterRow" style="display:none;">Quarter
+				<select name="periodLabel" id="quarterSelect">
+					<option value="">— Select quarter —</option>
+					<option th:each="q : ${quarters}" th:value="${q}" th:text="${q}"></option>
+				</select>
+			</label>
+
+			<!-- File upload (multiple, all types) -->
+			<label>Files <span style="font-weight:400;color:#64748b;">(all formats accepted, max 50 MB each)</span>
+				<input type="file" name="files" multiple required/>
+			</label>
+
+			<button type="submit" class="admin-btn">Upload MPR</button>
+		</form>
+	</div>
+</div>
+
+<script>
+function mprTypeChange(type) {
+	var monthRow   = document.getElementById('monthRow');
+	var quarterRow = document.getElementById('quarterRow');
+	var monthSel   = document.getElementById('monthSelect');
+	var quarterSel = document.getElementById('quarterSelect');
+	monthRow.style.display   = type === 'MONTHLY'    ? '' : 'none';
+	quarterRow.style.display = type === 'QUARTERLY'  ? '' : 'none';
+	monthSel.required   = type === 'MONTHLY';
+	quarterSel.required = type === 'QUARTERLY';
+	if (type !== 'MONTHLY')   monthSel.value = '';
+	if (type !== 'QUARTERLY') quarterSel.value = '';
+}
+</script>
+</section>
+</body>
+</html>

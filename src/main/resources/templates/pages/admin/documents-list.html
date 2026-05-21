@@ -8,7 +8,6 @@
 		<div class="page-header">
 			<div class="page-header-left">
 				<h1 class="page-title">Published documents</h1>
-				<span class="page-subtitle">PDFs and visibility by designation (view only — officers upload from the portal)</span>
 			</div>
 		</div>
 
@@ -28,7 +27,7 @@
 				<a class="admin-btn admin-btn--muted doc-filter-form__clear" th:href="@{/admin/documents}">Clear</a>
 			</form>
 
-			<div th:replace="~{fragments/documents-table :: documentsTable(${documentPage}, ${documentsShowDelete}, 'No documents match your filter.')}"></div>
+			<div th:replace="~{fragments/documents-table :: documentsTable(${documentPage}, ${documentsShowDelete}, 'No documents match your filter.', '/admin/documents/delete', false, '')}"></div>
 			<div th:replace="~{fragments/documents-pagination :: documentsPagination(${documentPage}, ${documentsListPath}, ${filterFrom}, ${filterTo})}"></div>
 		</div>
 	</div>

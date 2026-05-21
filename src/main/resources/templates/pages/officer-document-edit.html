@@ -7,38 +7,38 @@
 	<div class="documents-upload-container">
 		<div class="page-header">
 			<div class="page-header-left">
-				<h1 class="page-title">Upload PDF</h1>
-				<span class="page-subtitle">Published for selected designations</span>
+				<h1 class="page-title">Edit Document</h1>
+				<span class="page-subtitle" th:text="${doc.title}">Document title</span>
 			</div>
 			<div class="header-actions" style="padding-right:1.75rem;">
-				<a style="display:inline-flex;padding:0.45rem 0.9rem;background:#eef3fb;border:1px solid #c0ceea;border-radius:3px;color:#003d7a;font-weight:600;font-size:0.85rem;text-decoration:none;"
-				   th:href="@{/home/documents}">Back to documents</a>
+				<a class="admin-btn admin-btn--muted" th:href="@{/home/my-uploads}" style="text-decoration:none;">Back to My Uploads</a>
 			</div>
 		</div>
 		<div class="form-page-body">
-			<div class="admin-flash admin-flash--err" th:if="${uploadError}" th:text="${uploadError}"></div>
-			<form th:action="@{/home/documents/new}" method="post" enctype="multipart/form-data" class="admin-form-grid">
+			<div class="admin-flash admin-flash--err" th:if="${editError}" th:text="${editError}"></div>
+			<form th:action="@{/home/my-uploads/{id}/edit(id=${doc.id})}" method="post" class="admin-form-grid">
 				<label>Title
-					<input type="text" name="title" required maxlength="500" placeholder="Document title"/>
+					<input type="text" name="title" th:value="${doc.title}" required maxlength="500"/>
 				</label>
 				<label>Document type
 					<select name="documentTypeId" required>
-						<option th:each="t : ${documentTypes}" th:value="${t.id}" th:text="${t.name}"></option>
+						<option th:each="t : ${documentTypes}"
+						        th:value="${t.id}"
+						        th:text="${t.name}"
+						        th:selected="${t.id == doc.documentType.id}"></option>
 					</select>
 				</label>
 				<fieldset style="border:1px solid #c0ceea;border-radius:4px;padding:0.75rem;margin:0;">
 					<legend style="font-weight:600;font-size:0.82rem;color:#334155;padding:0 0.35rem;">Visible to designations (at least one)</legend>
-					<div th:if="${designations.isEmpty()}" style="color:#b71c1c;font-size:0.85rem;">No active designations. Contact an administrator.</div>
+					<div th:if="${designations.isEmpty()}" style="color:#b71c1c;font-size:0.85rem;">No active designations available.</div>
 					<label th:each="des : ${designations}" style="flex-direction:row;align-items:center;gap:0.5rem;margin-top:0.35rem;">
-						<input type="checkbox" name="designationIds" th:value="${des.id}"/>
+						<input type="checkbox" name="designationIds" th:value="${des.id}"
+						       th:checked="${selectedDesignationIds.contains(des.id)}"/>
 						<span th:text="${des.name}">Name</span>
 						<span th:if="${des.handlesAllDivisions}" style="font-size:0.75rem;color:#64748b;">(all divisions)</span>
 					</label>
 				</fieldset>
-				<label>PDF file
-					<input type="file" name="file" accept="application/pdf,.pdf" required/>
-				</label>
-				<button type="submit" class="admin-btn">Upload</button>
+				<button type="submit" class="admin-btn">Save changes</button>
 			</form>
 		</div>
 	</div>

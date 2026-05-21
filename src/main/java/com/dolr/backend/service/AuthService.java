@@ -123,6 +123,28 @@ public class AuthService {
         return ApiResponse.ok("Officer account created.");
     }
 
+    @Transactional
+    public ApiResponse<Void> changePassword(User user, String currentPassword, String newPassword, String confirmPassword) {
+        if (user == null) {
+            return ApiResponse.error("Not signed in.");
+        }
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            return ApiResponse.error("Current password is incorrect.");
+        }
+        if (newPassword == null || newPassword.length() < 8) {
+            return ApiResponse.error("New password must be at least 8 characters.");
+        }
+        if (!newPassword.equals(confirmPassword)) {
+            return ApiResponse.error("New passwords do not match.");
+        }
+        if (currentPassword.equals(newPassword)) {
+            return ApiResponse.error("New password must differ from the current password.");
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        return ApiResponse.ok(null);
+    }
+
     private static String normalizeEmail(String raw) {
         if (raw == null) {
             return "";

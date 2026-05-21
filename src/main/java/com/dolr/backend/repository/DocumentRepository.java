@@ -137,4 +137,15 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 			""")
 	Page<Document> findVisibleForDesignationPage(
 			@Param("designationId") Long designationId, Pageable pageable);
+
+	@Query(value = """
+			SELECT d FROM Document d
+			WHERE d.uploadedBy.id = :officerId
+			""",
+			countQuery = """
+			SELECT count(d) FROM Document d
+			WHERE d.uploadedBy.id = :officerId
+			""")
+	Page<Document> findByUploadedByIdPage(
+			@Param("officerId") Long officerId, Pageable pageable);
 }
