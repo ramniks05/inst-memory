@@ -42,6 +42,9 @@ public class GlobalModelAdvice {
 	public String navUserDesignation(HttpServletRequest request) {
 		return adminAuthHelper.userFromRequest(request).map(u -> {
 			if (u.getDesignation() != null && !u.getDesignation().isBlank()) return u.getDesignation().trim();
+			if (u.getDesignation() != null && !u.getDesignation().isBlank()) {
+				return u.getDesignation().trim();
+			}
 			return RoleCodes.isPortalAdministrator(u) ? "Administrator" : "—";
 		}).orElse("");
 	}
