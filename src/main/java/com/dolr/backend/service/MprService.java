@@ -112,6 +112,44 @@ public class MprService {
         return mprRepository.findByUploadedByIdPage(officer.getId(), pageable(page, size));
     }
 
+    @Transactional(readOnly = true)
+    public Mpr getForEdit(User officer, Long id) {
+        Mpr mpr = mprRepository.findById(id).orElse(null);
+        if (mpr == null) return null;
+        if (!mpr.getUploadedBy().getId().equals(officer.getId())) return null;
+        return mpr;
+    }
+
+    @Transactional
+    public ApiResponse<Void> updateMetadata(User officer, Long id,
+            String divisionName, String subject,
+            String reportType, String financialYear, String periodLabel) {
+        Mpr mpr = mprRepository.findById(id).orElse(null);
+        if (mpr == null) return ApiResponse.error("Record not found.");
+        if (!mpr.getUploadedBy().getId().equals(officer.getId()))
+            return ApiResponse.error("You can only edit your own records.");
+        if (divisionName == null || divisionName.isBlank()) return ApiResponse.error("Division is required.");
+        if (subject == null || subject.isBlank()) return ApiResponse.error("Subject is required.");
+        if (reportType == null || !List.of("MONTHLY", "QUARTERLY", "YEARLY").contains(reportType))
+            return ApiResponse.error("Invalid report type.");
+        if (financialYear == null || financialYear.isBlank()) return ApiResponse.error("Financial year is required.");
+        if (("MONTHLY".equals(reportType) || "QUARTERLY".equals(reportType))
+                && (periodLabel == null || periodLabel.isBlank()))
+            return ApiResponse.error("Period is required for " + reportType.toLowerCase() + " reports.");
+
+        String fy = financialYear.trim();
+        String label = "YEARLY".equals(reportType) ? null : (periodLabel != null ? periodLabel.trim() : null);
+        mpr.setDivisionName(divisionName.trim());
+        mpr.setSubject(subject.trim());
+        mpr.setReportType(reportType);
+        mpr.setFinancialYear(fy);
+        mpr.setFinancialYearStart(parseFyStart(fy));
+        mpr.setPeriodLabel(label);
+        mpr.setPeriodValue(periodValueOf(reportType, label));
+        mprRepository.save(mpr);
+        return ApiResponse.ok(null);
+    }
+
     @Transactional
     public ApiResponse<Void> deleteByOwner(User officer, Long id) {
         Mpr mpr = mprRepository.findById(id).orElse(null);
@@ -124,11 +162,15 @@ public class MprService {
     }
 
     @Transactional(readOnly = true)
+    public Page<Mpr> listAllPaged(int page, int size) {
+        return mprRepository.findAllPageWithUploader(pageable(page, size));
+    }
+
+    @Transactional(readOnly = true)
     public ResponseEntity<Resource> download(User viewer, Long id) {
+        // Any signed-in officer may view any MPR
         Mpr mpr = mprRepository.findById(id).orElse(null);
         if (mpr == null) return ResponseEntity.notFound().build();
-        if (!mpr.getUploadedBy().getId().equals(viewer.getId()))
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         Path base = Paths.get(uploadDir).toAbsolutePath().normalize();
         Path path = base.resolve(mpr.getStoredRelativePath());
         try {

@@ -31,12 +31,23 @@
 				<fieldset style="border:1px solid #c0ceea;border-radius:4px;padding:0.75rem;margin:0;">
 					<legend style="font-weight:600;font-size:0.82rem;color:#334155;padding:0 0.35rem;">Visible to designations (at least one)</legend>
 					<div th:if="${designations.isEmpty()}" style="color:#b71c1c;font-size:0.85rem;">No active designations available.</div>
-					<label th:each="des : ${designations}" style="flex-direction:row;align-items:center;gap:0.5rem;margin-top:0.35rem;">
-						<input type="checkbox" name="designationIds" th:value="${des.id}"
-						       th:checked="${selectedDesignationIds.contains(des.id)}"/>
-						<span th:text="${des.name}">Name</span>
-						<span th:if="${des.handlesAllDivisions}" style="font-size:0.75rem;color:#64748b;">(all divisions)</span>
-					</label>
+					<th:block th:each="des : ${designations}">
+						<label style="flex-direction:row;align-items:center;gap:0.5rem;margin-top:0.35rem;">
+							<!-- Own designation: always checked, cannot be removed -->
+							<th:block th:if="${officerDesignationId != null and des.id == officerDesignationId}">
+								<input type="checkbox" th:value="${des.id}" checked disabled/>
+								<input type="hidden" name="designationIds" th:value="${des.id}"/>
+							</th:block>
+							<th:block th:unless="${officerDesignationId != null and des.id == officerDesignationId}">
+								<input type="checkbox" name="designationIds" th:value="${des.id}"
+								       th:checked="${selectedDesignationIds.contains(des.id)}"/>
+							</th:block>
+							<span th:text="${des.name}">Name</span>
+							<span th:if="${des.handlesAllDivisions}" style="font-size:0.75rem;color:#64748b;">(all divisions)</span>
+							<span th:if="${officerDesignationId != null and des.id == officerDesignationId}"
+							      class="desig-own-badge">Your designation</span>
+						</label>
+					</th:block>
 				</fieldset>
 				<button type="submit" class="admin-btn">Save changes</button>
 			</form>

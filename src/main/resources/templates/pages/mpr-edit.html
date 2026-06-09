@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}" lang="en">
+<body>
+<section layout:fragment="content">
+<div class="mpr-page">
+
+	<div class="page-header">
+		<div class="page-header-left">
+			<h1 class="page-title">Edit MPR</h1>
+			<span class="page-subtitle" th:text="${mpr.subject}">Subject</span>
+		</div>
+		<div class="header-actions">
+			<a class="admin-btn admin-btn--muted" th:href="@{/home/mpr}" style="text-decoration:none;">Back to MPR list</a>
+		</div>
+	</div>
+
+	<div class="form-page-body">
+		<div class="admin-flash admin-flash--err" th:if="${editError}" th:text="${editError}"></div>
+
+		<!-- Hidden sentinels read by JS to restore period value reliably -->
+		<input type="hidden" id="_savedReportType"   th:value="${mpr.reportType}"/>
+		<input type="hidden" id="_savedPeriodLabel"  th:value="${mpr.periodLabel}"/>
+
+		<form th:action="@{/home/mpr/{id}/edit(id=${mpr.id})}" method="post"
+		      class="mpr-form admin-form-grid">
+
+			<!-- Division -->
+			<label>Division
+				<select name="divisionName" required>
+					<option value="">— Select division —</option>
+					<option th:each="d : ${divisions}"
+					        th:value="${d.name}"
+					        th:text="${d.name}"
+					        th:selected="${d.name == mpr.divisionName}"></option>
+				</select>
+			</label>
+
+			<!-- Subject -->
+			<label>Subject
+				<input type="text" name="subject" required maxlength="500"
+				       th:value="${mpr.subject}"
+				       placeholder="e.g. Progress report for road construction"/>
+			</label>
+
+			<!-- Report type -->
+			<div class="mpr-type-row">
+				<span class="chpw-label" style="display:block;margin-bottom:0.4rem;">Report type</span>
+				<div class="mpr-type-btns">
+					<label class="mpr-type-btn">
+						<input type="radio" name="reportType" value="MONTHLY" required
+						       th:checked="${mpr.reportType == 'MONTHLY'}"
+						       onchange="mprTypeChange(this.value)"/>
+						<span>Monthly</span>
+					</label>
+					<label class="mpr-type-btn">
+						<input type="radio" name="reportType" value="QUARTERLY"
+						       th:checked="${mpr.reportType == 'QUARTERLY'}"
+						       onchange="mprTypeChange(this.value)"/>
+						<span>Quarterly</span>
+					</label>
+					<label class="mpr-type-btn">
+						<input type="radio" name="reportType" value="YEARLY"
+						       th:checked="${mpr.reportType == 'YEARLY'}"
+						       onchange="mprTypeChange(this.value)"/>
+						<span>Yearly</span>
+					</label>
+				</div>
+			</div>
+
+			<!-- Financial year: always include the saved FY even if outside the generated window -->
+			<label>Financial year
+				<select name="financialYear" required>
+					<option value="">— Select FY —</option>
+					<!-- Saved FY that is not in the generated list (older record) -->
+					<th:block th:if="${mpr.financialYear != null and !financialYears.contains(mpr.financialYear)}">
+						<option th:value="${mpr.financialYear}" th:text="${mpr.financialYear}" selected></option>
+					</th:block>
+					<option th:each="fy : ${financialYears}"
+					        th:value="${fy}"
+					        th:text="${fy}"
+					        th:selected="${fy == mpr.financialYear}"></option>
+				</select>
+			</label>
+
+			<!--
+			  Rows: visibility set server-side via th:style (no flash on load).
+			  JS sets disabled on the hidden select so only the visible one
+			  is included in the POST body (both share name="periodLabel").
+			  JS also restores the saved value on DOMContentLoaded.
+			-->
+			<label id="monthRow"
+			       th:style="${mpr.reportType == 'MONTHLY'} ? '' : 'display:none'">Month
+				<select name="periodLabel" id="monthSelect">
+					<option value="">— Select month —</option>
+					<option th:each="m : ${months}"
+					        th:value="${m}"
+					        th:text="${m}"></option>
+				</select>
+			</label>
+
+			<label id="quarterRow"
+			       th:style="${mpr.reportType == 'QUARTERLY'} ? '' : 'display:none'">Quarter
+				<select name="periodLabel" id="quarterSelect">
+					<option value="">— Select quarter —</option>
+					<option th:each="q : ${quarters}"
+					        th:value="${q}"
+					        th:text="${q}"></option>
+				</select>
+			</label>
+
+			<!-- Uploaded file info (read-only) -->
+			<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;padding:0.6rem 0.75rem;font-size:0.85rem;color:#475569;">
+				<strong>Current file:</strong>
+				<span class="mpr-filename" th:text="${mpr.originalFileName}">file.pdf</span>
+				<span style="color:#94a3b8;margin-left:0.5rem;">(file cannot be changed — delete and re-upload to replace)</span>
+			</div>
+
+			<button type="submit" class="admin-btn">Save changes</button>
+		</form>
+	</div>
+</div>
+
+<script>
+function mprTypeChange(type) {
+	var monthRow   = document.getElementById('monthRow');
+	var quarterRow = document.getElementById('quarterRow');
+	var monthSel   = document.getElementById('monthSelect');
+	var quarterSel = document.getElementById('quarterSelect');
+	var isMonthly   = type === 'MONTHLY';
+	var isQuarterly = type === 'QUARTERLY';
+
+	monthRow.style.display   = isMonthly   ? '' : 'none';
+	quarterRow.style.display = isQuarterly ? '' : 'none';
+
+	/* Disable the hidden select so it never appears in the POST body */
+	monthSel.disabled = !isMonthly;
+	quarterSel.disabled = !isQuarterly;
+
+	monthSel.required   = isMonthly;
+	quarterSel.required = isQuarterly;
+
+	/* Clear value only when switching away from that type */
+	if (!isMonthly)   monthSel.value = '';
+	if (!isQuarterly) quarterSel.value = '';
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+	/* Read saved values from hidden inputs — more reliable than th:inline */
+	var savedType  = document.getElementById('_savedReportType').value;
+	var savedLabel = document.getElementById('_savedPeriodLabel').value;
+
+	var monthSel   = document.getElementById('monthSelect');
+	var quarterSel = document.getElementById('quarterSelect');
+
+	if (savedType === 'MONTHLY' && savedLabel) {
+		monthSel.value = savedLabel;
+	} else if (savedType === 'QUARTERLY' && savedLabel) {
+		quarterSel.value = savedLabel;
+	}
+
+	/* Apply initial disabled state for the hidden select */
+	monthSel.disabled   = (savedType !== 'MONTHLY');
+	quarterSel.disabled = (savedType !== 'QUARTERLY');
+	monthSel.required   = (savedType === 'MONTHLY');
+	quarterSel.required = (savedType === 'QUARTERLY');
+});
+</script>
+</section>
+</body>
+</html>

@@ -19,6 +19,11 @@ public interface MprRepository extends JpaRepository<Mpr, Long> {
            countQuery = "SELECT count(m) FROM Mpr m")
     Page<Mpr> findAllPage(Pageable pageable);
 
+    /** All records with uploader eagerly fetched (avoids N+1 for officer name display). */
+    @Query(value = "SELECT m FROM Mpr m JOIN FETCH m.uploadedBy",
+           countQuery = "SELECT count(m) FROM Mpr m")
+    Page<Mpr> findAllPageWithUploader(Pageable pageable);
+
     // ── Filter queries (used for report generation) ──────────────────────────
 
     /** Filter by financial year start (e.g. 2024 for FY 2024-25). */

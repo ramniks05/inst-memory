@@ -20,7 +20,7 @@
 		<div class="admin-flash admin-flash--err" th:if="${uploadError}" th:text="${uploadError}"></div>
 
 		<form th:action="@{/home/mpr/new}" method="post" enctype="multipart/form-data"
-		      class="mpr-form admin-form-grid" style="max-width:38rem;">
+		      class="mpr-form admin-form-grid">
 
 			<!-- Division -->
 			<label>Division
@@ -62,17 +62,17 @@
 				</select>
 			</label>
 
-			<!-- Month (shown for MONTHLY) -->
+			<!-- Month (shown for MONTHLY) — disabled when hidden so it never submits -->
 			<label id="monthRow" style="display:none;">Month
-				<select name="periodLabel" id="monthSelect">
+				<select name="periodLabel" id="monthSelect" disabled>
 					<option value="">— Select month —</option>
 					<option th:each="m : ${months}" th:value="${m}" th:text="${m}"></option>
 				</select>
 			</label>
 
-			<!-- Quarter (shown for QUARTERLY) -->
+			<!-- Quarter (shown for QUARTERLY) — disabled when hidden so it never submits -->
 			<label id="quarterRow" style="display:none;">Quarter
-				<select name="periodLabel" id="quarterSelect">
+				<select name="periodLabel" id="quarterSelect" disabled>
 					<option value="">— Select quarter —</option>
 					<option th:each="q : ${quarters}" th:value="${q}" th:text="${q}"></option>
 				</select>
@@ -94,12 +94,21 @@ function mprTypeChange(type) {
 	var quarterRow = document.getElementById('quarterRow');
 	var monthSel   = document.getElementById('monthSelect');
 	var quarterSel = document.getElementById('quarterSelect');
-	monthRow.style.display   = type === 'MONTHLY'    ? '' : 'none';
-	quarterRow.style.display = type === 'QUARTERLY'  ? '' : 'none';
-	monthSel.required   = type === 'MONTHLY';
-	quarterSel.required = type === 'QUARTERLY';
-	if (type !== 'MONTHLY')   monthSel.value = '';
-	if (type !== 'QUARTERLY') quarterSel.value = '';
+	var isMonthly   = type === 'MONTHLY';
+	var isQuarterly = type === 'QUARTERLY';
+
+	monthRow.style.display   = isMonthly   ? '' : 'none';
+	quarterRow.style.display = isQuarterly ? '' : 'none';
+
+	// Disable hidden select so it is excluded from the POST body entirely
+	monthSel.disabled = !isMonthly;
+	quarterSel.disabled = !isQuarterly;
+
+	monthSel.required   = isMonthly;
+	quarterSel.required = isQuarterly;
+
+	if (!isMonthly)   monthSel.value = '';
+	if (!isQuarterly) quarterSel.value = '';
 }
 </script>
 </section>

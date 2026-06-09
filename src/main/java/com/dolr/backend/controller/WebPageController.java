@@ -235,6 +235,8 @@ public class WebPageController {
 		model.addAttribute("headerShowLogin", false);
 		model.addAttribute("documentTypes", documentTypeService.listActiveTypes());
 		model.addAttribute("designations", designationService.listActiveDesignations());
+		Long ownDesigId = u.get().getDesignationRef() != null ? u.get().getDesignationRef().getId() : null;
+		model.addAttribute("officerDesignationId", ownDesigId);
 		return "pages/officer-document-upload";
 	}
 
@@ -299,6 +301,8 @@ public class WebPageController {
 		if (doc == null) {
 			return "redirect:/home/my-uploads";
 		}
+		Long ownDesigId = officer.getDesignationRef() != null ? officer.getDesignationRef().getId() : null;
+		model.addAttribute("officerDesignationId", ownDesigId);
 		model.addAttribute("doc", doc);
 		model.addAttribute("documentTypes", documentTypeService.listActiveTypes());
 		model.addAttribute("designations", designationService.listActiveDesignations());
@@ -384,6 +388,21 @@ public class WebPageController {
 
 	// ── MPR ──────────────────────────────────────────────────────────────────
 
+	@GetMapping("/home/mpr/all")
+	public String mprAll(
+			HttpSession session, Model model,
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size) {
+		Optional<User> opt = adminAuthHelper.userFromSession(session);
+		if (opt.isEmpty()) return "redirect:/login";
+		if (RoleCodes.isPortalAdministrator(opt.get())) return "redirect:/home";
+		model.addAttribute("mprPage", mprService.listAllPaged(page, size));
+		model.addAttribute("pageTitle", "MPR Reports");
+		model.addAttribute("activeMenu", "mpr-all");
+		model.addAttribute("headerShowLogin", false);
+		return "pages/mpr-all";
+	}
+
 	@GetMapping("/home/mpr")
 	public String mprList(
 			HttpSession session, Model model,
@@ -435,6 +454,51 @@ public class WebPageController {
 			return "redirect:/home/mpr/new";
 		}
 		ra.addFlashAttribute("flashSuccess", "MPR uploaded successfully.");
+		return "redirect:/home/mpr";
+	}
+
+	@GetMapping("/home/mpr/{id}/edit")
+	public String mprEditForm(
+			HttpSession session,
+			@PathVariable Long id,
+			Model model) {
+		Optional<User> opt = adminAuthHelper.userFromSession(session);
+		if (opt.isEmpty()) return "redirect:/login";
+		User officer = opt.get();
+		if (RoleCodes.isPortalAdministrator(officer)) return "redirect:/home";
+		var mpr = mprService.getForEdit(officer, id);
+		if (mpr == null) return "redirect:/home/mpr";
+		model.addAttribute("mpr", mpr);
+		model.addAttribute("divisions", divisionService.listActiveDivisions());
+		model.addAttribute("financialYears", MprService.financialYears());
+		model.addAttribute("months", MprService.months());
+		model.addAttribute("quarters", MprService.quarters());
+		model.addAttribute("pageTitle", "Edit MPR");
+		model.addAttribute("activeMenu", "mpr");
+		model.addAttribute("headerShowLogin", false);
+		return "pages/mpr-edit";
+	}
+
+	@PostMapping("/home/mpr/{id}/edit")
+	public String mprEditPost(
+			HttpSession session,
+			@PathVariable Long id,
+			@RequestParam String divisionName,
+			@RequestParam String subject,
+			@RequestParam String reportType,
+			@RequestParam String financialYear,
+			@RequestParam(required = false) String periodLabel,
+			RedirectAttributes ra) {
+		Optional<User> opt = adminAuthHelper.userFromSession(session);
+		if (opt.isEmpty()) return "redirect:/login";
+		User officer = opt.get();
+		if (RoleCodes.isPortalAdministrator(officer)) return "redirect:/home";
+		var resp = mprService.updateMetadata(officer, id, divisionName, subject, reportType, financialYear, periodLabel);
+		if (!resp.isSuccess()) {
+			ra.addFlashAttribute("editError", resp.getMessage());
+			return "redirect:/home/mpr/" + id + "/edit";
+		}
+		ra.addFlashAttribute("flashSuccess", "MPR updated successfully.");
 		return "redirect:/home/mpr";
 	}
 

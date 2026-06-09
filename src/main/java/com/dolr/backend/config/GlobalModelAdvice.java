@@ -91,6 +91,9 @@ public class GlobalModelAdvice {
 		if ("/home".equals(path)) {
 			return "dashboard";
 		}
+		if (path.startsWith("/home/mpr/all")) {
+			return "mpr-all";
+		}
 		if (path.startsWith("/home/mpr")) {
 			return "mpr";
 		}
