@@ -156,6 +156,11 @@ public class DocumentService {
 				return ApiResponse.error("Invalid designation selected.");
 			desigs.add(des);
 		}
+		// Always include the officer's own designation — cannot be removed
+		if (officer.getDesignationRef() != null) {
+			Designation ownDesig = designationRepository.findById(officer.getDesignationRef().getId()).orElse(null);
+			if (ownDesig != null) desigs.add(ownDesig);
+		}
 		d.setTitle(title.trim());
 		d.setDocumentType(dt);
 		d.setVisibleToDesignations(desigs);
@@ -323,6 +328,11 @@ public class DocumentService {
 				return ApiResponse.error("Invalid designation selected");
 			}
 			desigs.add(des);
+		}
+		// Always include the uploader's own designation — cannot be omitted
+		if (live.getDesignationRef() != null) {
+			Designation ownDesig = designationRepository.findById(live.getDesignationRef().getId()).orElse(null);
+			if (ownDesig != null) desigs.add(ownDesig);
 		}
 		if (desigs.isEmpty()) {
 			return ApiResponse.error("Select at least one designation that may view this document");

@@ -60,7 +60,7 @@
 				<input type="hidden" name="financialYear" th:value="${currentFinancialYear}"/>
 			</label>
 
-			<!-- Month (shown for MONTHLY) -->
+			<!-- Month (shown for MONTHLY) — disabled when hidden so it never submits -->
 			<label id="monthRow" style="display:none;">Month
 				<select name="periodLabel" id="monthSelect" disabled>
 					<option value="">— Select month —</option>
@@ -68,7 +68,7 @@
 				</select>
 			</label>
 
-			<!-- Quarter (shown for QUARTERLY) -->
+			<!-- Quarter (shown for QUARTERLY) — disabled when hidden so it never submits -->
 			<label id="quarterRow" style="display:none;">Quarter
 				<select name="periodLabel" id="quarterSelect" disabled>
 					<option value="">— Select quarter —</option>
@@ -92,6 +92,7 @@ function mprTypeChange(type) {
 	var quarterRow = document.getElementById('quarterRow');
 	var monthSel   = document.getElementById('monthSelect');
 	var quarterSel = document.getElementById('quarterSelect');
+<<<<<<< HEAD
 	var monthly    = type === 'MONTHLY';
 	var quarterly  = type === 'QUARTERLY';
 	monthRow.style.display   = monthly   ? '' : 'none';
@@ -102,6 +103,23 @@ function mprTypeChange(type) {
 	quarterSel.required = quarterly;
 	if (!monthly)   monthSel.value = '';
 	if (!quarterly) quarterSel.value = '';
+=======
+	var isMonthly   = type === 'MONTHLY';
+	var isQuarterly = type === 'QUARTERLY';
+
+	monthRow.style.display   = isMonthly   ? '' : 'none';
+	quarterRow.style.display = isQuarterly ? '' : 'none';
+
+	// Disable hidden select so it is excluded from the POST body entirely
+	monthSel.disabled = !isMonthly;
+	quarterSel.disabled = !isQuarterly;
+
+	monthSel.required   = isMonthly;
+	quarterSel.required = isQuarterly;
+
+	if (!isMonthly)   monthSel.value = '';
+	if (!isQuarterly) quarterSel.value = '';
+>>>>>>> 600506d00e61e6d55e58bb0d9684f165e20f085a
 }
 </script>
 </section>

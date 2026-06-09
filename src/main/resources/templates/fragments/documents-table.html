@@ -48,12 +48,12 @@
 				</td>
 				<td class="doc-table__td doc-table__td--actions" th:if="${showEdit}">
 					<a class="doc-btn doc-btn--edit"
-					   th:href="${editBasePath + '/' + row.id + '/edit'}">
+					   th:href="${ctx + editBasePath + '/' + row.id + '/edit'}">
 						Edit
 					</a>
 				</td>
 				<td class="doc-table__td doc-table__td--actions" th:if="${showDelete}">
-					<form th:action="${deletePath}" method="post" class="doc-delete-form">
+					<form th:action="${ctx + deletePath}" method="post" class="doc-delete-form">
 						<input type="hidden" name="id" th:value="${row.id}"/>
 						<button type="submit" class="doc-btn doc-btn--danger"
 						        onclick="return confirm('Delete this document permanently?');">
