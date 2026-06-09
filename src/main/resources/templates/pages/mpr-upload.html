@@ -20,7 +20,7 @@
 		<div class="admin-flash admin-flash--err" th:if="${uploadError}" th:text="${uploadError}"></div>
 
 		<form th:action="@{/home/mpr/new}" method="post" enctype="multipart/form-data"
-		      class="mpr-form admin-form-grid" style="max-width:38rem;">
+		      class="mpr-form admin-form-grid">
 
 			<!-- Division -->
 			<label>Division
@@ -54,17 +54,15 @@
 				</div>
 			</div>
 
-			<!-- Financial year -->
+			<!-- Financial year (current FY only) -->
 			<label>Financial year
-				<select name="financialYear" required>
-					<option value="">— Select FY —</option>
-					<option th:each="fy : ${financialYears}" th:value="${fy}" th:text="${fy}"></option>
-				</select>
+				<input type="text" readonly th:value="${currentFinancialYear}" style="background:#f8fafc;cursor:default;"/>
+				<input type="hidden" name="financialYear" th:value="${currentFinancialYear}"/>
 			</label>
 
 			<!-- Month (shown for MONTHLY) -->
 			<label id="monthRow" style="display:none;">Month
-				<select name="periodLabel" id="monthSelect">
+				<select name="periodLabel" id="monthSelect" disabled>
 					<option value="">— Select month —</option>
 					<option th:each="m : ${months}" th:value="${m}" th:text="${m}"></option>
 				</select>
@@ -72,7 +70,7 @@
 
 			<!-- Quarter (shown for QUARTERLY) -->
 			<label id="quarterRow" style="display:none;">Quarter
-				<select name="periodLabel" id="quarterSelect">
+				<select name="periodLabel" id="quarterSelect" disabled>
 					<option value="">— Select quarter —</option>
 					<option th:each="q : ${quarters}" th:value="${q}" th:text="${q}"></option>
 				</select>
@@ -94,12 +92,16 @@ function mprTypeChange(type) {
 	var quarterRow = document.getElementById('quarterRow');
 	var monthSel   = document.getElementById('monthSelect');
 	var quarterSel = document.getElementById('quarterSelect');
-	monthRow.style.display   = type === 'MONTHLY'    ? '' : 'none';
-	quarterRow.style.display = type === 'QUARTERLY'  ? '' : 'none';
-	monthSel.required   = type === 'MONTHLY';
-	quarterSel.required = type === 'QUARTERLY';
-	if (type !== 'MONTHLY')   monthSel.value = '';
-	if (type !== 'QUARTERLY') quarterSel.value = '';
+	var monthly    = type === 'MONTHLY';
+	var quarterly  = type === 'QUARTERLY';
+	monthRow.style.display   = monthly   ? '' : 'none';
+	quarterRow.style.display = quarterly ? '' : 'none';
+	monthSel.disabled   = !monthly;
+	quarterSel.disabled = !quarterly;
+	monthSel.required   = monthly;
+	quarterSel.required = quarterly;
+	if (!monthly)   monthSel.value = '';
+	if (!quarterly) quarterSel.value = '';
 }
 </script>
 </section>

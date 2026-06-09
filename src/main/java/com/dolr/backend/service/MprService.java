@@ -26,7 +26,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.time.Year;
 import java.util.List;
 import java.util.UUID;
@@ -54,9 +56,19 @@ public class MprService {
         if (reportType == null || !List.of("MONTHLY", "QUARTERLY", "YEARLY").contains(reportType))
             return ApiResponse.error("Invalid report type.");
         if (financialYear == null || financialYear.isBlank()) return ApiResponse.error("Financial year is required.");
+        String fy = financialYear.trim();
+        if (!fy.equals(currentFinancialYear())) {
+            return ApiResponse.error("Only the current financial year (" + currentFinancialYear() + ") can be used for upload.");
+        }
         if (("MONTHLY".equals(reportType) || "QUARTERLY".equals(reportType))
                 && (periodLabel == null || periodLabel.isBlank()))
             return ApiResponse.error("Period is required for " + reportType.toLowerCase() + " reports.");
+        if ("MONTHLY".equals(reportType) || "QUARTERLY".equals(reportType)) {
+            Integer pvCheck = periodValueOf(reportType, periodLabel.trim());
+            if (pvCheck == null) {
+                return ApiResponse.error("Invalid period for " + reportType.toLowerCase() + " report.");
+            }
+        }
         if (files == null || files.isEmpty() || files.stream().allMatch(MultipartFile::isEmpty))
             return ApiResponse.error("At least one file is required.");
 
@@ -82,7 +94,6 @@ public class MprService {
             } catch (IOException e) {
                 return ApiResponse.error("Could not save file: " + origName);
             }
-            String fy = financialYear.trim();
             Integer fyStart = parseFyStart(fy);
             String label = "YEARLY".equals(reportType) ? null : periodLabel.trim();
             Integer pv = periodValueOf(reportType, label);
@@ -163,16 +174,20 @@ public class MprService {
 
     // ── Helpers for controller ──────────────────────────────────────────────
 
-    public static List<String> financialYears() {
-        int current = Year.now().getValue();
-        // FY runs April–March; if we're in Jan–Mar the current FY started last year
-        java.time.Month month = java.time.LocalDate.now().getMonth();
-        int fyStart = month.getValue() < 4 ? current - 1 : current;
-        List<String> years = new java.util.ArrayList<>();
-        for (int y = fyStart; y >= fyStart - 5; y--) {
-            years.add(y + "-" + String.format("%02d", (y + 1) % 100));
-        }
-        return years;
+    /** FY runs April–March; Jan–Mar belong to the FY that started the previous calendar year. */
+    public static int currentFinancialYearStart() {
+        int calendarYear = Year.now().getValue();
+        Month month = LocalDate.now().getMonth();
+        return month.getValue() < Month.APRIL.getValue() ? calendarYear - 1 : calendarYear;
+    }
+
+    /** Display label for the active FY, e.g. {@code 2025-26}. */
+    public static String currentFinancialYear() {
+        return formatFinancialYear(currentFinancialYearStart());
+    }
+
+    private static String formatFinancialYear(int fyStart) {
+        return fyStart + "-" + String.format("%02d", (fyStart + 1) % 100);
     }
 
     public static List<String> months() {

@@ -196,7 +196,7 @@ public class WebPageController {
 			return "redirect:/login";
 		}
 		if (adminAuthHelper.isPortalAdministrator(session)) {
-			return "redirect:/admin/officers";
+			return "redirect:/admin/users";
 		}
 		return "redirect:/home/documents";
 	}
@@ -406,7 +406,7 @@ public class WebPageController {
 		if (opt.isEmpty()) return "redirect:/login";
 		if (RoleCodes.isPortalAdministrator(opt.get())) return "redirect:/home";
 		model.addAttribute("divisions", divisionService.listActiveDivisions());
-		model.addAttribute("financialYears", MprService.financialYears());
+		model.addAttribute("currentFinancialYear", MprService.currentFinancialYear());
 		model.addAttribute("months", MprService.months());
 		model.addAttribute("quarters", MprService.quarters());
 		model.addAttribute("pageTitle", "Upload MPR");

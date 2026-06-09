@@ -41,7 +41,6 @@ public class GlobalModelAdvice {
 	@ModelAttribute("navUserDesignation")
 	public String navUserDesignation(HttpServletRequest request) {
 		return adminAuthHelper.userFromRequest(request).map(u -> {
-			if (u.getDesignation() != null && !u.getDesignation().isBlank()) return u.getDesignation().trim();
 			if (u.getDesignation() != null && !u.getDesignation().isBlank()) {
 				return u.getDesignation().trim();
 			}
@@ -82,8 +81,17 @@ public class GlobalModelAdvice {
 		if (path.startsWith("/admin/divisions")) {
 			return "admin-divisions";
 		}
-		if (path.startsWith("/admin/officers") || path.contains("/admin/officers/")) {
-			return "admin-officers";
+		if (path.startsWith("/admin/users")) {
+			return "admin-users";
+		}
+		if (path.contains("/admin/officers/new")) {
+			return "admin-officer-new";
+		}
+		if (path.contains("/admin/officers/") && path.endsWith("/edit")) {
+			return "admin-officer-edit";
+		}
+		if (path.startsWith("/admin/officers")) {
+			return "admin-users";
 		}
 		if (path.startsWith("/admin/documents")) {
 			return "admin-documents";

@@ -303,7 +303,7 @@ public class AdminWebController {
 		if (deny != null) {
 			return deny;
 		}
-		return "redirect:/admin/officers";
+		return "redirect:/admin/users";
 	}
 
 	private void populateOfficerForm(Model model) {
@@ -364,20 +364,29 @@ public class AdminWebController {
 			return "pages/admin/officer-new";
 		}
 		ra.addFlashAttribute("flashSuccess", resp.getMessage());
-		return "redirect:/admin/officers";
+		return "redirect:/admin/users";
 	}
 
-	@GetMapping("/admin/officers")
-	public String officersList(HttpSession session, Model model) {
+	@GetMapping("/admin/users")
+	public String usersList(HttpSession session, Model model) {
 		String deny = redirectUnlessAdmin(session, adminAuthHelper);
 		if (deny != null) {
 			return deny;
 		}
-		model.addAttribute("pageTitle", "Officers");
-		model.addAttribute("activeMenu", "admin-officers");
+		model.addAttribute("pageTitle", "Users");
+		model.addAttribute("activeMenu", "admin-users");
 		model.addAttribute("headerShowLogin", false);
 		model.addAttribute("officers", officerService.getAllOfficers());
 		return "pages/admin/officers-list";
+	}
+
+	@GetMapping("/admin/officers")
+	public String officersLegacyRedirect(HttpSession session) {
+		String deny = redirectUnlessAdmin(session, adminAuthHelper);
+		if (deny != null) {
+			return deny;
+		}
+		return "redirect:/admin/users";
 	}
 
 	@GetMapping("/admin/officers/{id}/edit")
@@ -388,7 +397,7 @@ public class AdminWebController {
 		}
 		User u = officerService.findEditableOfficerForAdmin(id).orElse(null);
 		if (u == null) {
-			return "redirect:/admin/officers";
+			return "redirect:/admin/users";
 		}
 		AdminEditOfficerRequest form = new AdminEditOfficerRequest();
 		form.setFullName(u.getFullName());
@@ -426,7 +435,7 @@ public class AdminWebController {
 			return deny;
 		}
 		if (officerService.findEditableOfficerForAdmin(id).isEmpty()) {
-			return "redirect:/admin/officers";
+			return "redirect:/admin/users";
 		}
 		if (br.hasErrors()) {
 			model.addAttribute("pageTitle", "Edit officer");
@@ -448,7 +457,7 @@ public class AdminWebController {
 			return "pages/admin/officer-edit";
 		}
 		ra.addFlashAttribute("flashSuccess", "Officer updated.");
-		return "redirect:/admin/officers";
+		return "redirect:/admin/users";
 	}
 
 	@PostMapping("/admin/officers/{id}/delete")
@@ -459,16 +468,16 @@ public class AdminWebController {
 		}
 		if (officerService.findEditableOfficerForAdmin(id).isEmpty()) {
 			ra.addFlashAttribute("flashError", "Officer not found.");
-			return "redirect:/admin/officers";
+			return "redirect:/admin/users";
 		}
 		try {
 			officerService.deleteOfficer(id);
 		} catch (RuntimeException ex) {
 			ra.addFlashAttribute("flashError", ex.getMessage());
-			return "redirect:/admin/officers";
+			return "redirect:/admin/users";
 		}
 		ra.addFlashAttribute("flashSuccess", "Officer access removed.");
-		return "redirect:/admin/officers";
+		return "redirect:/admin/users";
 	}
 
 	@GetMapping("/admin/document-types")

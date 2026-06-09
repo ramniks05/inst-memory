@@ -5766,17 +5766,41 @@ select.form-input {
   padding: 1.75rem;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .form-page-body > .admin-flash,
 .form-page-body > .doc-flash {
   width: 100%;
-  max-width: 28rem;
+  max-width: none;
   box-sizing: border-box;
 }
 
-.admin-form-grid { display: grid; gap: 0.75rem; max-width: 28rem; width: 100%; margin: 0 auto 1.5rem; }
+.admin-form-grid {
+  display: grid;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 0 1.5rem;
+  box-sizing: border-box;
+}
+
+@media (min-width: 960px) {
+  .admin-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem 1.25rem;
+  }
+
+  .admin-form-grid > button,
+  .admin-form-grid > fieldset,
+  .admin-form-grid > .mpr-type-row,
+  .admin-form-grid > label:has(input[type="file"]),
+  .admin-form-grid > label:has(textarea) {
+    grid-column: 1 / -1;
+  }
+}
 .admin-form-grid label { display: flex; flex-direction: column; gap: 0.25rem; font-weight: 600; font-size: 0.82rem; color: #334155; }
 .admin-form-grid input, .admin-form-grid select { padding: 0.45rem 0.5rem; border: 1px solid #c0ceea; border-radius: 3px; font: inherit; }
 .admin-btn { display: inline-flex; align-items: center; padding: 0.45rem 0.9rem; background: #003d7a; color: #fff; border: none; border-radius: 3px; font-weight: 600; font-size: 0.85rem; cursor: pointer; font-family: inherit; }

@@ -7,11 +7,11 @@
 	<div class="dashboard-container">
 		<div class="page-header">
 			<div class="page-header-left">
-				<h1 class="page-title">Officers</h1>
-				<span class="page-subtitle">Approved officer accounts</span>
+				<h1 class="page-title">Users</h1>
+				<span class="page-subtitle">Approved portal user accounts</span>
 			</div>
 			<div class="header-actions" style="padding-right:1.75rem;">
-				<a class="admin-btn admin-btn--muted" th:href="@{/admin/officers/new}" style="text-decoration:none;">Add officer</a>
+				<a class="admin-btn admin-btn--muted" th:href="@{/admin/officers/new}" style="text-decoration:none;">Add user</a>
 			</div>
 		</div>
 		<div style="padding: 1.25rem 1.75rem;">
@@ -30,7 +30,7 @@
 				</thead>
 				<tbody>
 				<tr th:if="${officers.isEmpty()}">
-					<td colspan="8" style="color:#64748b;">No officers yet. Use Add officer.</td>
+					<td colspan="8" style="color:#64748b;">No users yet. Use Add user.</td>
 				</tr>
 				<tr th:each="o, iterStat : ${officers}">
 					<td class="admin-table__sno" th:text="${iterStat.count}">1</td>
