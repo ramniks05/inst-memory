@@ -69,19 +69,10 @@
 				</div>
 			</div>
 
-			<!-- Financial year: always include the saved FY even if outside the generated window -->
+			<!-- Financial year: read-only, shows the FY saved with this record -->
 			<label>Financial year
-				<select name="financialYear" required>
-					<option value="">— Select FY —</option>
-					<!-- Saved FY that is not in the generated list (older record) -->
-					<th:block th:if="${mpr.financialYear != null and !financialYears.contains(mpr.financialYear)}">
-						<option th:value="${mpr.financialYear}" th:text="${mpr.financialYear}" selected></option>
-					</th:block>
-					<option th:each="fy : ${financialYears}"
-					        th:value="${fy}"
-					        th:text="${fy}"
-					        th:selected="${fy == mpr.financialYear}"></option>
-				</select>
+				<input type="text" readonly th:value="${mpr.financialYear}" style="background:#f8fafc;cursor:default;"/>
+				<input type="hidden" name="financialYear" th:value="${mpr.financialYear}"/>
 			</label>
 
 			<!--

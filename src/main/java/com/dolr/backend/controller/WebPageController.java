@@ -470,7 +470,6 @@ public class WebPageController {
 		if (mpr == null) return "redirect:/home/mpr";
 		model.addAttribute("mpr", mpr);
 		model.addAttribute("divisions", divisionService.listActiveDivisions());
-		model.addAttribute("financialYears", MprService.financialYears());
 		model.addAttribute("months", MprService.months());
 		model.addAttribute("quarters", MprService.quarters());
 		model.addAttribute("pageTitle", "Edit MPR");
